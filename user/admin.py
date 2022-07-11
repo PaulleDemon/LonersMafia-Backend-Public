@@ -5,11 +5,12 @@ from .models import User, BlacklistedIp
 from django.utils.translation import ngettext
 # Register your models here.
 
+
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
 
     list_display = ['username', 'ip_address', 'date_joined']
-    list_filter = ['-date_joined']
+    ordering = ['-date_joined']
 
     @admin.action(description='Black list the user')
     def blacklist_user(self, request, queryset):

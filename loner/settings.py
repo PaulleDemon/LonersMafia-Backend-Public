@@ -41,7 +41,12 @@ INSTALLED_APPS = [
     # apps
     'user',
     'room',
+
+    #3rd party
+    'channels',
 ]
+
+AUTH_USER_MODEL = "user.User" 
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -71,7 +76,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'loner.wsgi.application'
+# WSGI_APPLICATION = 'loner.wsgi.application'
+ASGI_APPLICATION = 'mysite.asgi.application'
 
 
 # Database

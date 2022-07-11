@@ -3,6 +3,7 @@ from django.utils import timezone
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 
+from utils.customfields import ContentTypeRestrictedFileField
 
 
 # custom manager
@@ -50,11 +51,12 @@ class CustomUserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
 
     username = models.CharField(unique=True, max_length=30)
-    user_avatar = models.FileField() # TODO; from here
+    user_avatar = ContentTypeRestrictedFileField(upload_to='avatars/', content_types=['image/png', 'image/jpeg'], max_upload_size=10485760)  # 20 mb max
+
     ip_address = models.GenericIPAddressField(null=True) # the ip is stored only to prevent attacks on server
 
 
-    email = models.EmailField(null=True) # used only for admin users
+    email = models.EmailField(unique=True, null=True) # used only for admin users
 
     objects = CustomUserManager()
     USERNAME_FIELD = 'email' # emails only for admins and staffs
@@ -62,6 +64,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    
     date_joined = models.DateTimeField(default=timezone.now) # you can also use auto_add_now=True
 
     def __str__(self):
