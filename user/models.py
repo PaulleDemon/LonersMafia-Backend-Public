@@ -50,12 +50,10 @@ class CustomUserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
 
-    username = models.CharField(unique=True, max_length=30)
+    name = models.CharField(unique=True, max_length=30)
     user_avatar = ContentTypeRestrictedFileField(upload_to='avatars/', content_types=['image/png', 'image/jpeg'], max_upload_size=10485760)  # 20 mb max
 
     ip_address = models.GenericIPAddressField(null=True) # the ip is stored only to prevent attacks on server
-
-
     email = models.EmailField(unique=True, null=True) # used only for admin users
 
     objects = CustomUserManager()
@@ -68,7 +66,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(default=timezone.now) # you can also use auto_add_now=True
 
     def __str__(self):
-        return self.username
+        return self.name
 
 
 
@@ -76,7 +74,7 @@ class BlacklistedIp(models.Model):
     """
         the blacklisted ips will not be able to use the service anymore
     """
-    ip_address = models.GenericIPAddressField(null=False) 
+    ip_address = models.GenericIPAddressField(null=True) 
 
     def __str__(self):
         return self.ip_address

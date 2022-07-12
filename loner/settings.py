@@ -40,10 +40,11 @@ INSTALLED_APPS = [
 
     # apps
     'user',
-    'room',
+    'space',
 
     #3rd party
     'channels',
+    'rest_framework',
 ]
 
 AUTH_USER_MODEL = "user.User" 
@@ -59,6 +60,13 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'loner.urls'
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'utils.pagination.CustomPageNumber',
+    'PAGE_SIZE': 10
+}
+
 
 TEMPLATES = [
     {

@@ -1,15 +1,13 @@
-from ipaddress import ip_address
 from django.contrib import admin
 from django.contrib import messages
 from .models import User, BlacklistedIp
-from django.utils.translation import ngettext
 # Register your models here.
 
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
 
-    list_display = ['username', 'ip_address', 'date_joined']
+    list_display = ['name', 'ip_address', 'date_joined']
     ordering = ['-date_joined']
 
     @admin.action(description='Black list the user')
