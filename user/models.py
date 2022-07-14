@@ -1,3 +1,4 @@
+from email.policy import default
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.base_user import BaseUserManager
@@ -51,10 +52,11 @@ class CustomUserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
 
     name = models.CharField(unique=True, max_length=30)
-    user_avatar = ContentTypeRestrictedFileField(upload_to='avatars/', content_types=['image/png', 'image/jpeg'], max_upload_size=10485760)  # 20 mb max
+    avatar = ContentTypeRestrictedFileField(upload_to='avatars/', content_types=['image/png', 'image/jpeg'], 
+            max_upload_size=10485760, default='avatars/avatar-default.svg')  # 20 mb max
 
-    ip_address = models.GenericIPAddressField(null=True) # the ip is stored to prevent attacks on server
-    email = models.EmailField(unique=True, null=True) # used only for staff/admin users
+    ip_address = models.GenericIPAddressField(null=True, blank=True) # the ip is stored to prevent attacks on server
+    email = models.EmailField(unique=True, null=True, blank=True) # used only for staff/admin users
 
     tag_line = models.CharField(max_length=50)
 
@@ -76,7 +78,7 @@ class BlacklistedIp(models.Model):
     """
         the blacklisted ips will not be able to use the service anymore
     """
-    user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
     ip_address = models.GenericIPAddressField(null=True) 
     datetime = models.DateTimeField(default=timezone.now)
 

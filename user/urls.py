@@ -2,7 +2,7 @@ from django.urls import path
 
 
 urlpatterns = [
-    path('create/', ),
-    path('update/', ),
-    path('ban/')
+    # path('create/', ),
+    # path('update/', ),
+    # path('ban/')
 ]

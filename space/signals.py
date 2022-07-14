@@ -4,7 +4,7 @@ from django.db.models.signals import post_save
 from . import models
 
 
-@receiver(post_save)
+@receiver(post_save, sender=models.Space)
 def on_space_create(sender, instance, created, *args, **kwargs):
 
     """ 

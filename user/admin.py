@@ -7,8 +7,16 @@ from .models import User, BlacklistedIp
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
 
-    list_display = ['name', 'ip_address', 'date_joined']
+    list_display = ['id', 'name', 'ip_address', 'date_joined']
     ordering = ['-date_joined']
+
+    fieldsets = (
+        ('user details', {'fields': ('id', 'email', 'name',   
+                                        'date_joined',  'avatar', 'ip_address')}),
+        ('permissions', {'fields': ('is_staff', 'is_active', 'is_admin')}),
+    )
+
+    readonly_fields = ['id', 'date_joined']
 
     @admin.action(description='Black list the user')
     def blacklist_user(self, request, queryset):
