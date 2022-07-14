@@ -49,6 +49,21 @@ INSTALLED_APPS = [
 
 AUTH_USER_MODEL = "user.User" 
 
+if DEBUG:
+    channels_hosts = [('127.0.0.1', 6379)]
+
+else:
+    channels_hosts = [('', 6379)]
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": channels_hosts,
+        },
+    },
+}
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -85,7 +100,7 @@ TEMPLATES = [
 ]
 
 # WSGI_APPLICATION = 'loner.wsgi.application'
-ASGI_APPLICATION = 'mysite.asgi.application'
+ASGI_APPLICATION = 'loner.asgi.application'
 
 
 # Database

@@ -1,3 +1,4 @@
+from ipaddress import ip_address
 import json
 
 from django.db.models import Q
@@ -5,12 +6,14 @@ from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
+from asgiref.sync import async_to_sync
 
 # from asgiref.sync import async_to_sync
 # from django.dispatch import receiver
 # from django.db.models.signals import post_save
 
-from .models import Message, Room
+from .models import Message,  Space, BanUserFromSpace
+from user.models import BlacklistedIp
 # from .serializers import MessagesSerializer
 
 User = get_user_model()
@@ -18,68 +21,54 @@ User = get_user_model()
 class ChatConsumer(AsyncWebsocketConsumer):
     """ This receives connection to chat creates room"""
 
-    @database_sync_to_async
-    def create_chat(self, msg, sender):
-        """ saves message to data base """
+    # @database_sync_to_async
+    # def create_space(self, msg, sender):
+    #     """ saves message to data base """
   
-        if msg == "":
-            return
+    #     if msg == "":
+    #         return
 
-        try:
-            room = Room.objects.get(id=self.room_name)
+    #     try:
+    #         room = Room.objects.get(id=self.room_name)
         
-        except Room.DoesNotExist:
-            return 
+    #     except Room.DoesNotExist:
+    #         return 
 
-        recipient = room.user2 if sender != room.user2 else room.user1 
-        Message.objects.create(room=room, sender=sender, recipient=recipient, message=msg)
+    #     recipient = room.user2 if sender != room.user2 else room.user1 
+    #     Message.objects.create(room=room, sender=sender, recipient=recipient, message=msg)
         
-    @database_sync_to_async
-    def mark_message_read(self, room, recipient):
-        """ saves message to data base """
-  
-        try:
-            room = Room.objects.get(id=room)
-        
-        except Room.DoesNotExist:
-            return 
-
-        Message.objects.filter(room=room, recipient=recipient, recipient_read=False).update(recipient_read=True)
-
 
     @database_sync_to_async
-    def user_allowed(self, sender):
-        """ checks if the user is allowed to access the room. """
+    def user_allowed(self):
+        """ checks if the user isn't blacklisted """
         try:
-            room = Room.objects.get(id=self.scope['url_route']['kwargs']['room_name'])
-            
-            return sender in [room.user1, room.user2] 
+            ip_address = self.scope['client'][0]
+            black_listed = BlacklistedIp.objects.filter(ip_address=ip_address).exists()
+            banned_from_space = BanUserFromSpace.objects.filter(ip_address=ip_address).exists()
+
+            return (not black_listed and not banned_from_space)
         
-        except Room.DoesNotExist:
+        except (Exception):
             return False
 
     async def connect(self):
+        print("Test: ", self.scope['client'][0])
+        
+        self.space_name = self.scope['url_route']['kwargs']['room_name']
+        self.space_group_name = 'chat_%s' % self.space_name
 
-        if not self.scope or self.scope['user'] == AnonymousUser:
+        if not self.user_allowed():
             return 
-
-        self.room_name = self.scope['url_route']['kwargs']['room_name']
-        self.room_group_name = 'chat_%s' % self.room_name
-
-        if not 'user' in self.scope:
-            return
 
         # Join room group
         await self.channel_layer.group_add(
-            self.room_group_name,
+            self.space_group_name,
             self.channel_name
         )
 
-        if await self.user_allowed(self.scope['user']):
-            await self.accept()
 
-        else:
-            await self.close(1008)
+        await self.accept()
+
 
     async def disconnect(self, close_code):
         # Leave room group
