@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 from utils.customfields import ContentTypeRestrictedFileField
 # Create your models here.
 
@@ -69,7 +70,7 @@ class Message(models.Model):
     media = ContentTypeRestrictedFileField(upload_to='chat-media/', content_types=['image/png', 'image/jpeg', 'image/gif', 'image/svg'], 
                                             max_upload_size=10485760, null=True)  # 20 mb max
     
-    datetime = models.DateTimeField(auto_now_add=True)
+    datetime = models.DateTimeField(default=timezone.now) #auto_now_add=True
 
     class Meta:
 

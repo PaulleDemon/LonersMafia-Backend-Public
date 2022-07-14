@@ -1,14 +1,15 @@
-from ipaddress import ip_address
 import json
 
 from django.db.models import Q
-from channels.db import database_sync_to_async
-from channels.generic.websocket import AsyncWebsocketConsumer
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
+
+from channels.db import database_sync_to_async
+from channels.generic.websocket import AsyncWebsocketConsumer
+
+
 from asgiref.sync import async_to_sync
 
-# from asgiref.sync import async_to_sync
 # from django.dispatch import receiver
 # from django.db.models.signals import post_save
 
@@ -21,21 +22,26 @@ User = get_user_model()
 class ChatConsumer(AsyncWebsocketConsumer):
     """ This receives connection to chat creates room"""
 
-    # @database_sync_to_async
-    # def create_space(self, msg, sender):
-    #     """ saves message to data base """
-  
-    #     if msg == "":
-    #         return
+    @database_sync_to_async
+    def create_chat(self, msg, sender_ip):
+        """ saves message to data base """
 
-    #     try:
-    #         room = Room.objects.get(id=self.room_name)
+        if msg == "":
+            return
+
+        try:
+            user = User.objects.get(ip_address=sender_ip)
+
+        except User.DoesNotExist:
+            return
+
+        try:
+            space = Space.objects.get(name=self.room_name)
         
-    #     except Room.DoesNotExist:
-    #         return 
+        except Space.DoesNotExist:
+            return 
 
-    #     recipient = room.user2 if sender != room.user2 else room.user1 
-    #     Message.objects.create(room=room, sender=sender, recipient=recipient, message=msg)
+        Message.objects.create(space=space, user=user, message=msg)
         
 
     @database_sync_to_async
@@ -52,17 +58,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return False
 
     async def connect(self):
-        print("Test: ", self.scope['client'][0])
+
+        """ Allows websocket connection """
         
-        self.space_name = self.scope['url_route']['kwargs']['room_name']
-        self.space_group_name = 'chat_%s' % self.space_name
+        self.room_name = self.scope['url_route']['kwargs']['room_name']
+        self.room_group_name = 'chat_%s' % self.room_name
 
         if not self.user_allowed():
             return 
 
         # Join room group
         await self.channel_layer.group_add(
-            self.space_group_name,
+            self.room_group_name,
             self.channel_name
         )
 
@@ -85,13 +92,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
         text_data_json = json.loads(text_data)
         
         message = None
-        room = None
-
+        reaction = None
+       
         if 'message' in text_data_json:
             message = text_data_json['message']
 
-        if 'markread' in text_data_json:
-            room = text_data_json['markread'] 
+        if 'reaction' in text_data_json:
+            reaction = text_data_json['reaction'] 
 
         # Send message to room group
 
@@ -105,12 +112,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 }
             )
 
-        elif room:
+        elif reaction:
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
-                    'type': 'mark_read',
-                    'room': room,
+                    'type': 'react_message',
+                    'room': reaction,
                     'sender_channel_name': self.channel_name
                 }
             )
@@ -118,12 +125,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # Receive message from room group
     async def save_message(self, event):
         """ calls the create chat and save the message to data base """
+
         message = event['message']
 
-        if self.channel_name == event['sender_channel_name']:
-            await self.create_chat(message, self.scope['user'])
+        # if isinstance(self.scope['user'], AnonymousUser):
+        #     return 
+        ip_address = self.scope['client'][0]
 
-    async def mark_read(self, event):
+        if self.channel_name == event['sender_channel_name']:
+            await self.create_chat(message, ip_address)
+
+    async def react_message(self, event):
         """ calls the mark read to mark the messages as read """
 
         room = event['room']
