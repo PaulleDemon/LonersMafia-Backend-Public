@@ -15,7 +15,7 @@ class UserAdmin(admin.ModelAdmin):
         """ blacklists the user ip """
 
         for x in queryset:
-            BlacklistedIp.objects.create(ip_address=x.ip_address)
+            BlacklistedIp.objects.create(user=x, ip_address=x.ip_address)
 
         self.message_user(request, 'users ip was successfully blacklisted', messages.SUCCESS)
 
@@ -27,3 +27,10 @@ class UserAdmin(admin.ModelAdmin):
         User.objects.filter(user__in=queryset).delete()
 
         self.message_user(request, 'user was successfully blacklisted and removed', messages.SUCCESS)
+
+
+@admin.register(BlacklistedIp)
+class BlackListAdmin(admin.ModelAdmin):
+
+    list_display = ['ip_address', 'user']
+    search_fields = ['ip_address', 'user__name']

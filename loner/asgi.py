@@ -13,10 +13,23 @@ from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter
 from django.core.asgi import get_asgi_application
 
+from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.security.websocket import AllowedHostsOriginValidator
+
+from .auth_middleware import JWTAuthMiddleware
+
+import space.routing
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'loner.settings')
 
-application = get_asgi_application()
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
+    "websocket": AllowedHostsOriginValidator( 
+                JWTAuthMiddleware(
+                    URLRouter(
+                        space.routing.websocket_urlpatterns
+                     )
+                )
+            ),
 })

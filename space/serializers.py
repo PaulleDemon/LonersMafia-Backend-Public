@@ -3,7 +3,7 @@ from rest_framework import serializers
 from utils.customserializers import DynamicFieldsModelSerializer
 
 from . import models
-
+from user.models import User
 
 class SpaceSerializer(DynamicFieldsModelSerializer):
 
@@ -21,6 +21,12 @@ class SpaceSerializer(DynamicFieldsModelSerializer):
         """
 
         return RuleSerializer(models.Rule.objects.get(space=obj), many=True).data
+
+    def get_is_staff(self, obj):
+        """
+            returns if the user is staff 
+        """
+        return User.objects.filter(id=self.context['request'].id, staff=True).exists()
 
     def get_mods(self, obj):
         """
@@ -54,7 +60,30 @@ class ModeratorSerializer(serializers.ModelSerializer):
 
 class MessageSerializer(serializers.ModelSerializer):
 
+    is_staff = serializers.SerializerMethodField() # lets user know if the message is from staff/moderator
+    is_mod = serializers.SerializerMethodField() # lets user know if the message is from mod
+
     class Meta:
 
         model = models.Message
         fields = '__all__'
+
+    def is_mod(self, obj):
+        """
+            returns true if the user is a modertor
+        """
+
+        return models.Moderator.objects.filter(space=obj, user=self.context['request'].user.id).exists()
+
+    def get_is_staff(self, obj):
+        """
+            returns if the user is staff 
+        """
+        return User.objects.filter(id=self.context['request'].id, staff=True).exists()
+
+    def is_mod(self, obj):
+        """
+            returns true if the user is a modertor
+        """
+
+        return models.Moderator.objects.filter(space=obj, user=self.context['request'].user.id).exists()
