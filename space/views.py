@@ -20,7 +20,7 @@ class CreateSpaceView(generics.GenericAPIView, mixins.CreateModelMixin):
 
     queryset = Space.objects.all()
     serializer_class = SpaceSerializer
-    permission_classes = [OnlyRegisteredPermission]
+    permission_classes = [AnyOneButBannedPermission | OnlyRegisteredPermission]
 
     def post(self, request, *args, **kwargs):
         self.create(request, *args, **kwargs)
@@ -39,6 +39,7 @@ class UpdateSpaceView(generics.GenericAPIView, mixins.UpdateModelMixin):
 
     def put(self, request, *args, **kwargs):
         self.partial_update(request, *args, **kwargs)
+
 
 # -------------------------------------- Message views ------------------------------
 class MessageListView(generics.GenericAPIView, mixins.ListModelMixin):

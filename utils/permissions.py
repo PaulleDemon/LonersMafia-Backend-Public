@@ -1,11 +1,12 @@
 from rest_framework import permissions
 
+from ipware import get_client_ip
+
 from . import exceptions
 
 from space.models import Moderator, BanUserFromSpace
 from user.models import User, BlacklistedIp
 
-from ipware import get_client_ip
 
 
 class OnlyRegisteredPermission(permissions.BasePermission):
@@ -18,7 +19,7 @@ class OnlyRegisteredPermission(permissions.BasePermission):
         
         ip_address, is_routable = get_client_ip(request)
 
-        if (User.objects.filter(ip_address=ip_address).exists()):
+        if User.objects.filter(ip_address=ip_address).exists():
             return True
 
         raise exceptions.AuthRequired()
@@ -33,7 +34,7 @@ class AnyOneButBannedPermission(permissions.BasePermission):
 
         ip_address, is_routable = get_client_ip(request)
 
-        if (not BlacklistedIp.objects.filter(ip=ip_address).exists()):
+        if not BlacklistedIp.objects.filter(ip_address=ip_address).exists():
             return True
 
         raise exceptions.BannedFromLoner()

@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.db.models.functions import Lower
 from django.db.models import UniqueConstraint
 from django.core.validators import RegexValidator
+from django.core.exceptions import ValidationError
 
 from rest_framework import status
 
@@ -15,7 +16,7 @@ color_validator = RegexValidator(regex='^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$', me
 
 class Space(models.Model):
     """
-        Each user can create their own space and start a chat. Looner is a char space for looners
+        Each user can create their own space and start a chat. Loner is a chat space for loners
     """
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
 
@@ -49,8 +50,12 @@ class Space(models.Model):
         return self.name
 
     def clean(self) -> None:
-        
+
+        if Space.objects.filter(name__iexact=self.name).exists():
+            raise ValidationError(message='This space already exists.', code=status.HTTP_400_BAD_REQUEST)
+
         return super().clean()
+
 
 class Rule(models.Model):
 

@@ -1,7 +1,11 @@
 from django.db import models
 from django.utils import timezone
+from django.core.validators import RegexValidator
+from django.core.exceptions import ValidationError
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+
+from rest_framework import status
 
 from utils.customfields import ContentTypeRestrictedFileField
 
@@ -47,12 +51,14 @@ class CustomUserManager(BaseUserManager):
 
         return user
 
+user_name_validator = RegexValidator(regex='^[a-zA-Z][a-zA-Z0-9_-]+$', message='can contain only alpha numeric and -, _ and must begin with alphabet', code=status.HTTP_400_BAD_REQUEST)
+
 
 class User(AbstractBaseUser, PermissionsMixin):
 
-    name = models.CharField(unique=True, max_length=30)
+    name = models.CharField(unique=True, null=True, blank=False, max_length=30, validators=[user_name_validator])
     avatar = ContentTypeRestrictedFileField(upload_to='avatars/', content_types=['image/png', 'image/jpeg'], 
-            max_upload_size=10485760, default='avatars/avatar-default.svg')  # 20 mb max
+            max_upload_size=10485760, default='avatars/avatar-default.svg', null=True)  # 20 mb max
 
     ip_address = models.GenericIPAddressField(null=True, blank=True) # the ip is stored to prevent attacks on server
     email = models.EmailField(unique=True, null=True, blank=True) # used only for staff/admin users
@@ -70,7 +76,18 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.name
+    
+    def clean(self) -> None:
 
+        self.name = self.name.strip()
+        
+        if len(self.name) < 3:
+            raise ValidationError(message='user name is too short', code=status.HTTP_400_BAD_REQUEST)
+
+        if User.objects.filter(name__iexact=self.name).exists():
+            raise ValidationError(message='This name is taken', code=status.HTTP_400_BAD_REQUEST)
+
+        return super().clean()
 
 
 class BlacklistedIp(models.Model):
