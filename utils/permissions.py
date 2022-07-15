@@ -40,6 +40,21 @@ class AnyOneButBannedPermission(permissions.BasePermission):
         raise exceptions.BannedFromLoner()
 
 
+class IsUsersObjectPermission(OnlyRegisteredPermission):
+    """
+        Allows only the original author to change the objects it created
+    """
+
+    def has_object_permission(self, request, view, obj):
+
+        ip_address, is_routable = get_client_ip(request)
+
+        if User.objects.filter(name=request.user.name, ip_address=ip_address).exists():
+            return True
+
+        raise exceptions.Forbidden(detail='you don\'t have permission to perform this action')
+
+
 class AnyOneButSpaceBanned(permissions.BasePermission):
     """ users that are banned from space cannot message that space """
 
@@ -63,3 +78,12 @@ class ModeratorPermission(permissions.BasePermission):
 
         raise exceptions.Forbidden()
 
+
+class IsStaffPermission(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+
+        if request.user.is_staff:
+            return True
+
+        raise exceptions.Forbidden()

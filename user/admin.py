@@ -40,5 +40,5 @@ class UserAdmin(admin.ModelAdmin):
 @admin.register(BlacklistedIp)
 class BlackListAdmin(admin.ModelAdmin):
 
-    list_display = ['ip_address', 'user']
+    list_display = ['id', 'ip_address', 'user']
     search_fields = ['ip_address', 'user__name']

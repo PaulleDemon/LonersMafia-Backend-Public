@@ -60,6 +60,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     avatar = ContentTypeRestrictedFileField(upload_to='avatars/', content_types=['image/png', 'image/jpeg'], 
             max_upload_size=10485760, default='avatars/avatar-default.svg', null=True)  # 20 mb max
 
+    #TODO: make ip field unique
     ip_address = models.GenericIPAddressField(null=True, blank=True) # the ip is stored to prevent attacks on server
     email = models.EmailField(unique=True, null=True, blank=True) # used only for staff/admin users
 
@@ -95,8 +96,8 @@ class BlacklistedIp(models.Model):
         the blacklisted ips will not be able to use the service anymore
     """
     user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
-    ip_address = models.GenericIPAddressField(null=True) 
+    ip_address = models.GenericIPAddressField(null=False) 
     datetime = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.ip_address
+        return f'{self.ip_address}'

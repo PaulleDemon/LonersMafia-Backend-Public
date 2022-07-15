@@ -1,8 +1,8 @@
 from django.core.exceptions import ValidationError
 
-from rest_framework import status
+from rest_framework import status, serializers
 
-from .models import User
+from .models import User, BlacklistedIp
 from utils.customserializers import DynamicFieldsModelSerializer
 
 
@@ -31,3 +31,17 @@ class UserSerializer(DynamicFieldsModelSerializer):
             raise ValidationError(message='This name is taken', code=status.HTTP_400_BAD_REQUEST)
 
         return super().validate(attrs)
+
+
+class BanUserSerializer(serializers.ModelSerializer):
+
+
+    class Meta:
+        
+        model = BlacklistedIp
+        fields = '__all__'
+
+        extra_kwargs = {
+            'ip_address': {'read_only': 'true'},
+            'datetime': {'read_only': 'true'}
+        }
