@@ -11,7 +11,7 @@ class UserAdmin(admin.ModelAdmin):
     ordering = ['-date_joined']
 
     fieldsets = (
-        ('user details', {'fields': ('id', 'email', 'name',   
+        ('user details', {'fields': ('id', 'email', 'name', 'tag_line',  
                                         'date_joined',  'avatar', 'ip_address')}),
         ('permissions', {'fields': ('is_staff', 'is_active', 'is_admin')}),
     )

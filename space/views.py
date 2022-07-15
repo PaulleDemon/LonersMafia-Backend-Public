@@ -3,13 +3,44 @@ from django.db.models import Q, Max
 from rest_framework.response import Response
 from rest_framework import generics, mixins, status, permissions
 
-from utils.permissions import AnyOneButBannedPermission, OnlyRegisteredPermission
+from utils.permissions import AnyOneButBannedPermission, ModeratorPermission, OnlyRegisteredPermission
 from utils.exceptions import Forbidden, AuthRequired
 
-from .models import Message
-from .serializers import MessageSerializer
+from .models import Space, Message
+from .serializers import SpaceSerializer, MessageSerializer
 
 
+
+# ------------------------------------- Space Views ---------------------------
+class CreateSpaceView(generics.GenericAPIView, mixins.CreateModelMixin):
+
+    """
+        registered users can create new space
+    """
+
+    queryset = Space.objects.all()
+    serializer_class = SpaceSerializer
+    permission_classes = [OnlyRegisteredPermission]
+
+    def post(self, request, *args, **kwargs):
+        self.create(request, *args, **kwargs)
+
+
+class UpdateSpaceView(generics.GenericAPIView, mixins.UpdateModelMixin):
+
+    """
+        Allows moderators to update the icon, theme, tag line etc
+    """
+
+    queryset = Space.objects.all()
+    serializer_class = Space
+    permission_classes = [ModeratorPermission]
+    lookup_field = 'space'
+
+    def put(self, request, *args, **kwargs):
+        self.partial_update(request, *args, **kwargs)
+
+# -------------------------------------- Message views ------------------------------
 class MessageListView(generics.GenericAPIView, mixins.ListModelMixin):
 
     """
@@ -40,6 +71,9 @@ class MessageCreateView(generics.GenericAPIView, mixins.CreateModelMixin):
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
+
+
+
 
 # class MessageMarkRead(generics.GenericAPIView, mixins.UpdateModelMixin):
 

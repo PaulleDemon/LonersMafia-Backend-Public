@@ -1,4 +1,3 @@
-from email.policy import default
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.base_user import BaseUserManager
@@ -58,7 +57,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     ip_address = models.GenericIPAddressField(null=True, blank=True) # the ip is stored to prevent attacks on server
     email = models.EmailField(unique=True, null=True, blank=True) # used only for staff/admin users
 
-    tag_line = models.CharField(max_length=50)
+    tag_line = models.CharField(max_length=50, null=True, blank=True)
 
     objects = CustomUserManager()
     USERNAME_FIELD = 'email' # emails only for admins and staffs

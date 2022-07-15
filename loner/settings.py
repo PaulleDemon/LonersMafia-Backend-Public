@@ -55,6 +55,7 @@ if DEBUG:
 else:
     channels_hosts = [('', 6379)]
 
+
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
@@ -63,6 +64,7 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

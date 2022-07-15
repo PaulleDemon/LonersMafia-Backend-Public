@@ -1,9 +1,17 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
+from django.db.models.functions import Lower
+from django.db.models import UniqueConstraint
+from django.core.validators import RegexValidator
+
+from rest_framework import status
+
 from utils.customfields import ContentTypeRestrictedFileField
 # Create your models here.
 
+space_name_validator = RegexValidator(regex='^[a-zA-Z][a-zA-Z0-9_-]+$', message='can contain only alpha numeric and -, _ and must begin with alphabet', code=status.HTTP_400_BAD_REQUEST)
+color_validator = RegexValidator(regex='^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$', message='not a valid hex color code', code=status.HTTP_400_BAD_REQUEST)
 
 class Space(models.Model):
     """
@@ -11,13 +19,17 @@ class Space(models.Model):
     """
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
 
-    name = models.CharField(max_length=30, null=False, unique=True)
-    verbose_name = models.CharField(max_length=40, null=True) # this is a verbose name
+    name = models.CharField(max_length=30, null=False, unique=True, validators=[space_name_validator])
+    verbose_name = models.CharField(max_length=40, null=True, blank=True) # this is a verbose name (invite to join memers)
 
-    icon = ContentTypeRestrictedFileField(upload_to='space-icons/', content_types=['image/png', 'image/jpeg', 'image/gif'], 
-                                            max_upload_size=5242880, null=True)
-    about = models.CharField(max_length=350, null=True)
-    tag_line = models.CharField(max_length=60, null=True)
+    icon = ContentTypeRestrictedFileField(upload_to='space-icons/', content_types=['image/png', 'image/jpeg', 'image/gif', 'image/svg'], 
+                                            max_upload_size=5242880, null=True, blank=True)
+    about = models.CharField(max_length=350, null=True, blank=True)
+    tag_line = models.CharField(max_length=60, null=True, blank=True)
+
+    color_theme = models.CharField(max_length=16, validators=[color_validator], default="#f5d1e0", null=False, blank=False) 
+    background_image = ContentTypeRestrictedFileField(upload_to='space_background/', content_types=['image/png', 'image/jpeg', 'image/gif', 'image/svg'],
+                                                        max_upload_size=5242880, null=True, blank=True)
 
     created_datetime = models.DateTimeField(auto_now_add=True)
 
@@ -26,9 +38,19 @@ class Space(models.Model):
         verbose_name = 'space'
         verbose_name_plural = 'spaces'
 
+        constraints = [
+            UniqueConstraint(
+                Lower('name'),
+                name='name_unique',
+            ),
+        ]
+
     def __str__(self) -> str:
         return self.name
 
+    def clean(self) -> None:
+        
+        return super().clean()
 
 class Rule(models.Model):
 
