@@ -1,10 +1,11 @@
-from django.db.models import Q, Max
+from ipware import get_client_ip
 
 from rest_framework.response import Response
 from rest_framework import generics, mixins, status, permissions
 
 from utils.permissions import AnyOneButBannedPermission, ModeratorPermission, OnlyRegisteredPermission, IsStaffPermission
 
+from user.models import User
 from .models import Reaction, Space, Message
 from .serializers import ReactionSerializer, SpaceSerializer, MessageSerializer
 
@@ -22,7 +23,27 @@ class CreateSpaceView(generics.GenericAPIView, mixins.CreateModelMixin):
     permission_classes = [AnyOneButBannedPermission | OnlyRegisteredPermission]
 
     def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
+        # created = self.create(request, *args, **kwargs)
+
+        ip_address, is_routable = get_client_ip(request)
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        model = Space(**serializer.validated_data)
+        
+        user = User.objects.filter(ip_address=ip_address)
+        
+        if user.exists():
+            model.created_by = user.first()
+            model.save()
+            
+            new_serializer = SpaceSerializer(model)
+
+            return Response(new_serializer.data, status=status.HTTP_201_CREATED)
+
+        else:
+            return Response({'unregistered': 'you need to register before creating a space'}, status=status.HTTP_403_FORBIDDEN)
 
 
 class UpdateSpaceView(generics.GenericAPIView, mixins.UpdateModelMixin):

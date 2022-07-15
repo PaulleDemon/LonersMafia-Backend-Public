@@ -18,7 +18,7 @@ class Space(models.Model):
     """
         Each user can create their own space and start a chat. Loner is a chat space for loners
     """
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=False)
 
     name = models.CharField(max_length=30, null=False, unique=True, validators=[space_name_validator])
     verbose_name = models.CharField(max_length=40, null=True, blank=True) # this is a verbose name (invite to join memers)

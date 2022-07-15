@@ -14,13 +14,13 @@ from .serializers import BanUserSerializer, UserSerializer
 
 
 # ------------------------------------- user Views ---------------------------
-class LoginUserView(generics.GenericAPIView, mixins.CreateModelMixin):
+class LoginUserView(generics.GenericAPIView, mixins.ListModelMixin):
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AnyOneButBannedPermission]
 
-    def post(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
 
         ip_address, is_routable = get_client_ip(request)
 
@@ -71,14 +71,14 @@ class UpdateUserView(generics.GenericAPIView, mixins.UpdateModelMixin):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsUsersObjectPermission]
-
+    lookup_field = 'id'
 
     def put(self, request, *args, **kwargs):
         
         if 'name' in request.data:
-            raise ValidationError(message='name cannot be changed', code=status.HTTP_400_BAD_REQUEST)
+            return Response({'update failed': 'name cannot be changed'}, status=status.HTTP_400_BAD_REQUEST)
 
-        self.partial_update(request, *args, **kwargs)
+        return self.partial_update(request, *args, **kwargs)
 
 
 class BanUserFromNetworkView(generics.GenericAPIView, mixins.CreateModelMixin):

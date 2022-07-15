@@ -10,19 +10,33 @@ from user.models import User
 class SpaceSerializer(DynamicFieldsModelSerializer):
 
     rules = serializers.SerializerMethodField()
-    moderators = serializers.SerializerMethodField()
+    mods = serializers.SerializerMethodField()
 
     class Meta:
 
         model = models.Space
         fields = '__all__'
+        extra_kwargs = {
+            'created_by': {'read_only': True}
+        }
+
+    def validate(self, attrs):
+
+        if 'name' in attrs:
+
+            attrs['name'] = attrs['name'].strip()
+            
+            if len(attrs['name']) < 3:
+                raise ValidationError('must have atleast 3 characters')
+
+        return super().validate(attrs)
 
     def get_rules(self, obj):
         """
             gets the rules for the space
         """
 
-        return RuleSerializer(models.Rule.objects.get(space=obj), many=True).data
+        return RuleSerializer(models.Rule.objects.filter(space=obj), many=True).data
 
     def get_is_staff(self, obj):
         """
@@ -34,7 +48,7 @@ class SpaceSerializer(DynamicFieldsModelSerializer):
         """
             gets moderators of the space
         """
-        return ModeratorSerializer(models.Moderator.objects.get(space=obj), many=True).data
+        return ModeratorSerializer(models.Moderator.objects.filter(space=obj), many=True).data
 
     def is_mod(self, obj):
         """

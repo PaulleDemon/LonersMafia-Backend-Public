@@ -22,13 +22,14 @@ class UserSerializer(DynamicFieldsModelSerializer):
 
     def validate(self, attrs):
         
-        attrs['name'] = attrs['name'].strip()
+        if 'name' in attrs:
+            attrs['name'] = attrs['name'].strip()
 
-        if len(attrs['name']) < 3:
-            raise ValidationError(message='name too short', code=status.HTTP_400_BAD_REQUEST)
+            if len(attrs['name']) < 3:
+                raise ValidationError(message='name too short', code=status.HTTP_400_BAD_REQUEST)
 
-        if User.objects.filter(name__iexact=attrs['name']):
-            raise ValidationError(message='This name is taken', code=status.HTTP_400_BAD_REQUEST)
+            if User.objects.filter(name__iexact=attrs['name']):
+                raise ValidationError(message='This name is taken', code=status.HTTP_400_BAD_REQUEST)
 
         return super().validate(attrs)
 
