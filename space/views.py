@@ -3,11 +3,10 @@ from django.db.models import Q, Max
 from rest_framework.response import Response
 from rest_framework import generics, mixins, status, permissions
 
-from utils.permissions import AnyOneButBannedPermission, ModeratorPermission, OnlyRegisteredPermission
-from utils.exceptions import Forbidden, AuthRequired
+from utils.permissions import AnyOneButBannedPermission, ModeratorPermission, OnlyRegisteredPermission, IsStaffPermission
 
-from .models import Space, Message
-from .serializers import SpaceSerializer, MessageSerializer
+from .models import Reaction, Space, Message
+from .serializers import ReactionSerializer, SpaceSerializer, MessageSerializer
 
 
 
@@ -23,7 +22,7 @@ class CreateSpaceView(generics.GenericAPIView, mixins.CreateModelMixin):
     permission_classes = [AnyOneButBannedPermission | OnlyRegisteredPermission]
 
     def post(self, request, *args, **kwargs):
-        self.create(request, *args, **kwargs)
+        return self.create(request, *args, **kwargs)
 
 
 class UpdateSpaceView(generics.GenericAPIView, mixins.UpdateModelMixin):
@@ -38,7 +37,33 @@ class UpdateSpaceView(generics.GenericAPIView, mixins.UpdateModelMixin):
     lookup_field = 'space'
 
     def put(self, request, *args, **kwargs):
-        self.partial_update(request, *args, **kwargs)
+
+        if 'name' in request.data:
+            return Response({'cannot update': 'you cannot update the name of the space'}, code=status.HTTP_400_BAD_REQUEST)
+
+        return self.partial_update(request, *args, **kwargs)
+
+
+class ListSpaceView(generics.GenericAPIView, mixins.ListModelMixin):
+
+    """
+        Lists all the spaces.
+    """
+    queryset = Space.objects.all()
+    serializer_class = SpaceSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        
+        list_type = request.query_params.get('type')
+
+        if list_type is None:
+            query = self.get_queryset().order_by('-message__datetime')
+            serializer = self.get_serializer(query, context={'request': request})
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return self.list(request, *args, **kwargs)
 
 
 # -------------------------------------- Message views ------------------------------
@@ -74,45 +99,45 @@ class MessageCreateView(generics.GenericAPIView, mixins.CreateModelMixin):
         return self.create(request, *args, **kwargs)
 
 
+class MessageDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
+
+    """
+        Delete message
+    """
+
+    permission_classes = [ModeratorPermission|IsStaffPermission]
+    queryset = Message.objects.all()
+    serializer_class = MessageSerializer
+    lookup_field = 'id'
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
 
 
-# class MessageMarkRead(generics.GenericAPIView, mixins.UpdateModelMixin):
+# -------------------------------- react view ----------------------
 
-#     """
-#         Marks messages by recipient as read 
-#     """
-
-#     serializer_class = MessageSerializer  # Temp fix might want to use MessageSerializer, problem was that an ordered dict was being passed without id field might want to look up the problem later
-#     queryset = Message.objects.all()
-#     lookup_field = 'room'
-#     permission_classes = [permissions.IsAuthenticated]
-
-#     def validate_room(self, room):
-#         try:
-#             Room.objects.get(id=self.kwargs['room'])
-
-#         except Room.DoesNotExist:
-#             raise status.HTTP_400_BAD_REQUEST
-
-#         return True
+class MessageReactionCreateView(generics.GenericAPIView, mixins.CreateModelMixin):
 
 
-#     def put(self, request, *args, **kwargs):
-   
-#         self.validate_room(kwargs['room'])
-
-#         room=Room.objects.get(id=self.kwargs['room'])
-#         messages = Message.objects.filter(room=room, recipient=self.request.user, recipient_read=False)
-        
-#         instances = []
-#         for obj in messages:
-#             obj.recipient_read = True
-#             obj.save()
-#             instances.append(obj)
-
-#         serializer = MessagesSerializer(instances, many=True, context={'request': request})
-
-#         return Response(serializer.data)
+    permission_classes = [OnlyRegisteredPermission]
+    queryset = Reaction.objects.all()
+    serializer_class = ReactionSerializer
 
 
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
 
+
+class MessageReactionDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
+
+    queryset = Reaction.objects.all()
+    serializer_class = ReactionSerializer
+
+    lookup_field = 'id'
+
+    def delete(self, request, *args, **kwargs):
+
+        if Reaction.objects.filter(id=kwargs['id'], user=request.user.id).exists():
+            return self.delete(request, *args, **kwargs)
+
+        return Response({'forbidden': 'you are forbidden'}, status=status.HTTP_403_FORBIDDEN)

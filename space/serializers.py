@@ -1,9 +1,11 @@
-from rest_framework import serializers
+from django.forms import ValidationError
+from rest_framework import serializers, status
 
 from utils.customserializers import DynamicFieldsModelSerializer
 
 from . import models
 from user.models import User
+
 
 class SpaceSerializer(DynamicFieldsModelSerializer):
 
@@ -63,12 +65,15 @@ class MessageSerializer(serializers.ModelSerializer):
     is_staff = serializers.SerializerMethodField() # lets user know if the message is from staff/moderator
     is_mod = serializers.SerializerMethodField() # lets user know if the message is from mod
 
+    reactions_count = serializers.SerializerMethodField()
+    reactions = serializers.SerializerMethodField()
+
     class Meta:
 
         model = models.Message
         fields = '__all__'
 
-    def is_mod(self, obj):
+    def get_is_mod(self, obj):
         """
             returns true if the user is a modertor
         """
@@ -81,9 +86,26 @@ class MessageSerializer(serializers.ModelSerializer):
         """
         return User.objects.filter(id=self.context['request'].id, staff=True).exists()
 
-    def is_mod(self, obj):
+
+    def get_reactions(self, obj):
+
         """
-            returns true if the user is a modertor
+            gets the list of reaction by the user
         """
 
-        return models.Moderator.objects.filter(space=obj, user=self.context['request'].user.id).exists()
+
+class ReactionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+
+        model = models.Reaction
+        fields = '__all__'
+
+    def validate(self, attrs):
+
+        if models.Reaction.objects.filter(user=self.context['request'].user, 
+                            message=attrs['id'], reaction=attrs['reaction']).exists():
+            
+            raise ValidationError('The user has already reacted to this message', code=status.HTTP_400_BAD_REQUEST)
+
+        return super().validate(attrs)

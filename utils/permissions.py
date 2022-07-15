@@ -42,7 +42,7 @@ class AnyOneButBannedPermission(permissions.BasePermission):
 
 class IsUsersObjectPermission(OnlyRegisteredPermission):
     """
-        Allows only the original author to change the objects it created
+        Allows only the original author to change the user objects it created
     """
 
     def has_object_permission(self, request, view, obj):

@@ -14,8 +14,6 @@ from .serializers import BanUserSerializer, UserSerializer
 
 
 # ------------------------------------- user Views ---------------------------
-
-
 class LoginUserView(generics.GenericAPIView, mixins.CreateModelMixin):
 
     queryset = User.objects.all()

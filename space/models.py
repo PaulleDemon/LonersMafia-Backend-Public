@@ -115,13 +115,13 @@ class Reaction(models.Model):
     """
 
     class ReactionTypes(models.IntegerChoices):
-
-        HEART = 0, 'heart'
+        
+        ROCKET = 0, 'rocket'
     
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     message = models.ForeignKey(Message, on_delete=models.CASCADE)
 
-    reaction = models.PositiveSmallIntegerField(choices=ReactionTypes.choices)  
+    reaction = models.PositiveSmallIntegerField(choices=ReactionTypes.choices, default=ReactionTypes.ROCKET)  
 
     def __str__(self):
         return f'{self.user.name} reacted with {self.reaction}'
