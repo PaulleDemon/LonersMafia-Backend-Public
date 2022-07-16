@@ -41,6 +41,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         except Space.DoesNotExist:
             return 
 
+        print("Created..")
         Message.objects.create(space=space, user=user, message=msg)
         
 
@@ -93,7 +94,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         
         message = None
         reaction = None
-       
+
         if 'message' in text_data_json:
             message = text_data_json['message']
 
@@ -145,7 +146,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def send_saved(self, event):
         """ sends the saved message from database. """
-
+        print("Sending message: ", event['sender_data'])
         await self.send(
             text_data=json.dumps(event['sender_data'])
         )

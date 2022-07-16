@@ -95,13 +95,19 @@ class MessageSerializer(serializers.ModelSerializer):
         """
             returns true if the user is a modertor
         """
-        return models.Moderator.objects.filter(space=obj.space, user=self.context['request'].user.id).exists()
+        request = self.context.get('request')
+        user = request.user.id if request else self.context.get('user')
+
+        return models.Moderator.objects.filter(space=obj.space, user=user).exists()
 
     def get_is_staff(self, obj):
         """
             returns if the user is staff 
         """
-        return User.objects.filter(id=self.context['request'].user.id, is_staff=True).exists()
+        request = self.context.get('request')
+        user = request.user.id if request else self.context.get('user')
+
+        return User.objects.filter(id=user, is_staff=True).exists()
 
 
     # def get_reactions(self, obj):
