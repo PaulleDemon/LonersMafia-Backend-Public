@@ -19,6 +19,12 @@ from user.models import BlacklistedIp
 
 User = get_user_model()
 
+
+# The websocket unreserveed codes ranges from 3000 -4999, below is the definition of what the code means
+
+# 3401 - user-banned from participating in the space
+# 3404 - space not found
+
 class ChatConsumer(AsyncWebsocketConsumer):
     """ This receives connection to chat creates room"""
 
@@ -50,11 +56,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
         try:
             ip_address = self.scope['client'][0]
             black_listed = BlacklistedIp.objects.filter(ip_address=ip_address).exists()
-            banned_from_space = BanUserFromSpace.objects.filter(ip_address=ip_address).exists()
-
+            banned_from_space = BanUserFromSpace.objects.filter(user__ip_address=ip_address).exists()
             return (not black_listed and not banned_from_space)
         
-        except (Exception):
+        except (KeyError, IndexError) as e:
             return False
 
     @database_sync_to_async
@@ -73,22 +78,21 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
         if not await self.space_exists(self.room_name):
-            print("Closed")
-            await self.close(1008) # cannot use 1008 as close code must be between 3000-4999
+            await self.close(3404) # space not found
+            print("Connection closed")
             # self.send(text_data="Space doesn't exist", close=1008)
-            # return
+            return
 
         if not await self.user_allowed():
-            await self.close(1008)
-            # return 
+            await self.close(3401)
+            return 
 
+        print("Working...")
          # Join room group
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
         )
-
-
 
     async def disconnect(self, close_code):
         # Leave room group
@@ -98,6 +102,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
 
     # Receive message from WebSocket
+    #TODO: check if the user is allowed to send messages.
     async def receive(self, text_data):
         """ If text_data contains message it will be sent to save_message
          which will then save message in database. If it contains markread it will mark messages in 
@@ -158,7 +163,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def send_saved(self, event):
         """ sends the saved message from database. """
-        print("Sending message: ", event['sender_data'])
+        # print("Sending message: ", event['sender_data'])
         await self.send(
             text_data=json.dumps(event['sender_data'])
         )

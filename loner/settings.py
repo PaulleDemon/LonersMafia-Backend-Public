@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+from logging.handlers import SysLogHandler
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,8 +26,18 @@ SECRET_KEY = 'django-insecure-)scsh6_myslqst35cyvnv2@^0a-z7^zaw=r#b7*tai2z5%ypzz
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+
 ALLOWED_HOSTS = []
 
+if DEBUG:
+
+    ALLOWED_HOSTS += ['localhost', 'localhost:8000', 'localhost:3000']
+
+
+CORS_ALLOWED_ORIGINS = []
+
+if DEBUG:
+    CORS_ALLOWED_ORIGINS += ['http://localhost:3000']
 
 # Application definition
 
@@ -45,6 +56,7 @@ INSTALLED_APPS = [
     #3rd party
     'channels',
     'rest_framework',
+    'corsheaders',
 ]
 
 AUTH_USER_MODEL = "user.User" 
@@ -67,6 +79,9 @@ CHANNEL_LAYERS = {
 
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
+
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -170,3 +185,54 @@ MEDIA_ROOT = BASE_DIR.joinpath('media')
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# enables logging in production
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'filters': {
+#         'require_debug_false': {
+#             '()': 'django.utils.log.RequireDebugFalse'
+#         }
+#     },
+#     'formatters': {
+#         'verbose': {
+#             'format': '[contactor] %(levelname)s %(asctime)s %(message)s'
+#         },
+#     },
+#     'handlers': {
+#         # Send all messages to console
+#         'console': {
+#             'level': 'DEBUG',
+#             'class': 'logging.StreamHandler',
+#         },
+#         # Send info messages to syslog
+#         'syslog':{
+#             'level':'INFO',
+#             'class': 'logging.handlers.SysLogHandler',
+#             'facility': SysLogHandler.LOG_LOCAL2,
+#             'address': '/dev/log',
+#             'formatter': 'verbose',
+#         },
+#         # Warning messages are sent to admin emails
+#         'mail_admins': {
+#             'level': 'WARNING',
+#             'filters': ['require_debug_false'],
+#             'class': 'django.utils.log.AdminEmailHandler',
+#         },
+#         # critical errors are logged to sentry
+#         # 'sentry': {
+#         #     'level': 'ERROR',
+#         #     'filters': ['require_debug_false'],
+#         #     'class': 'raven.contrib.django.handlers.SentryHandler',
+#         # },
+#     },
+#     'loggers': {
+#         # This is the "catch all" logger
+#         '': {
+#             'handlers': ['console', 'syslog', 'mail_admins'],
+#             'level': 'DEBUG',
+#             'propagate': False,
+#         },
+#     }
+# }

@@ -59,6 +59,13 @@ class ModeratorAdmin(admin.ModelAdmin):
     search_fields = ['user__name', 'space__name']
 
 
+@admin.register(BanUserFromSpace)
+class BannedUserFromSpaceAdmin(admin.ModelAdmin):
+
+    list_display = ['id', 'user', 'space']
+    search_fields = ['user__name', 'space__name']
+
+
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
 
@@ -74,3 +81,4 @@ class ReactionAdmin(admin.ModelAdmin):
     list_display = ['id', 'reaction', 'user']
 
     search_fields = ['user__name', 'reaction', 'message__message']
+
