@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.forms import ValidationError
 from rest_framework import serializers, status
 
@@ -5,6 +6,7 @@ from utils.customserializers import DynamicFieldsModelSerializer
 
 from . import models
 from user.models import User
+from user.serializers import UserSerializer
 
 
 class SpaceSerializer(DynamicFieldsModelSerializer):
@@ -75,9 +77,13 @@ class ModeratorSerializer(serializers.ModelSerializer):
 
 class MessageSerializer(serializers.ModelSerializer):
 
+    user = UserSerializer(fields=('name', 'avatar'))
+    is_sender = serializers.SerializerMethodField() # lets user know if the user is the sender
+    
     is_staff = serializers.SerializerMethodField() # lets user know if the message is from staff/moderator
     is_mod = serializers.SerializerMethodField() # lets user know if the message is from mod
 
+    media = serializers.SerializerMethodField()
     # reactions_count = serializers.SerializerMethodField()
     # reactions = serializers.SerializerMethodField()
 
@@ -90,6 +96,18 @@ class MessageSerializer(serializers.ModelSerializer):
             'datetime': {'read_only': True},
             'user': {'read_only': True},
         }
+
+    def get_media(self, obj):
+        
+        if obj.media:
+            return settings.MEDIA_DOMAIN+obj.media.url
+
+    def get_is_sender(self, obj):
+
+        request = self.context.get('request')
+        user = request.user.id if request else self.context.get('user')
+
+        return models.Message.objects.filter(id=obj.id, user=user).exists()
 
     def get_is_mod(self, obj):
         """

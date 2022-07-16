@@ -39,8 +39,19 @@ CORS_ALLOWED_ORIGINS = []
 if DEBUG:
     CORS_ALLOWED_ORIGINS += ['http://localhost:3000']
 
-# Application definition
 
+SITE_DOMAIN = ''
+
+if DEBUG:
+    SITE_DOMAIN = 'http://localhost:8000'
+
+
+MEDIA_DOMAIN = '' # you can use subdomins to server media files
+
+if DEBUG:
+    MEDIA_DOMAIN = 'http://localhost:8000'
+
+# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -187,52 +198,52 @@ MEDIA_ROOT = BASE_DIR.joinpath('media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # enables logging in production
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'filters': {
-#         'require_debug_false': {
-#             '()': 'django.utils.log.RequireDebugFalse'
-#         }
-#     },
-#     'formatters': {
-#         'verbose': {
-#             'format': '[contactor] %(levelname)s %(asctime)s %(message)s'
-#         },
-#     },
-#     'handlers': {
-#         # Send all messages to console
-#         'console': {
-#             'level': 'DEBUG',
-#             'class': 'logging.StreamHandler',
-#         },
-#         # Send info messages to syslog
-#         'syslog':{
-#             'level':'INFO',
-#             'class': 'logging.handlers.SysLogHandler',
-#             'facility': SysLogHandler.LOG_LOCAL2,
-#             'address': '/dev/log',
-#             'formatter': 'verbose',
-#         },
-#         # Warning messages are sent to admin emails
-#         'mail_admins': {
-#             'level': 'WARNING',
-#             'filters': ['require_debug_false'],
-#             'class': 'django.utils.log.AdminEmailHandler',
-#         },
-#         # critical errors are logged to sentry
-#         # 'sentry': {
-#         #     'level': 'ERROR',
-#         #     'filters': ['require_debug_false'],
-#         #     'class': 'raven.contrib.django.handlers.SentryHandler',
-#         # },
-#     },
-#     'loggers': {
-#         # This is the "catch all" logger
-#         '': {
-#             'handlers': ['console', 'syslog', 'mail_admins'],
-#             'level': 'DEBUG',
-#             'propagate': False,
-#         },
-#     }
-# }
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        }
+    },
+    'formatters': {
+        'verbose': {
+            'format': '[contactor] %(levelname)s %(asctime)s %(message)s'
+        },
+    },
+    'handlers': {
+        # Send all messages to console
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+        # Send info messages to syslog
+        'syslog':{
+            'level':'INFO',
+            'class': 'logging.handlers.SysLogHandler',
+            'facility': SysLogHandler.LOG_LOCAL2,
+            'address': '/dev/log',
+            'formatter': 'verbose',
+        },
+        # Warning messages are sent to admin emails
+        'mail_admins': {
+            'level': 'WARNING',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler',
+        },
+        # critical errors are logged to sentry
+        # 'sentry': {
+        #     'level': 'ERROR',
+        #     'filters': ['require_debug_false'],
+        #     'class': 'raven.contrib.django.handlers.SentryHandler',
+        # },
+    },
+    'loggers': {
+        # This is the "catch all" logger
+        '': {
+            'handlers': ['console', 'syslog', 'mail_admins'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    }
+}

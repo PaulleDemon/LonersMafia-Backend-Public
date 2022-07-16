@@ -75,6 +75,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = 'chat_%s' % self.room_name
 
+        print("Scope:", self.scope)
         await self.accept()
 
         if not await self.space_exists(self.room_name):
@@ -87,7 +88,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.close(3401)
             return 
 
-        print("Working...")
          # Join room group
         await self.channel_layer.group_add(
             self.room_group_name,

@@ -5,8 +5,11 @@ from rest_framework import status, serializers
 from .models import User, BlacklistedIp
 from utils.customserializers import DynamicFieldsModelSerializer
 
+from django.conf import settings
 
 class UserSerializer(DynamicFieldsModelSerializer):
+
+    avatar = serializers.SerializerMethodField()
 
     class Meta:
 
@@ -33,6 +36,12 @@ class UserSerializer(DynamicFieldsModelSerializer):
 
         return super().validate(attrs)
 
+    def get_avatar(self, obj):
+
+        if obj.avatar:
+            return settings.MEDIA_DOMAIN+obj.avatar.url
+        else:
+            return None
 
 class BanUserSerializer(serializers.ModelSerializer):
 
