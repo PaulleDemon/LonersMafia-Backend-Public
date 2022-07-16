@@ -41,7 +41,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         except Space.DoesNotExist:
             return 
 
-        print("Created..")
         Message.objects.create(space=space, user=user, message=msg)
         
 
@@ -58,6 +57,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
         except (Exception):
             return False
 
+    @database_sync_to_async
+    def space_exists(self, space):
+        """ checks if the space exists """
+
+        return Space.objects.filter(name__iexact=space).exists()
+
     async def connect(self):
 
         """ Allows websocket connection """
@@ -65,17 +70,24 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = 'chat_%s' % self.room_name
 
-        if not self.user_allowed():
-            return 
+        await self.accept()
 
-        # Join room group
+        if not await self.space_exists(self.room_name):
+            print("Closed")
+            await self.close(1008) # cannot use 1008 as close code must be between 3000-4999
+            # self.send(text_data="Space doesn't exist", close=1008)
+            # return
+
+        if not await self.user_allowed():
+            await self.close(1008)
+            # return 
+
+         # Join room group
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
         )
 
-
-        await self.accept()
 
 
     async def disconnect(self, close_code):
