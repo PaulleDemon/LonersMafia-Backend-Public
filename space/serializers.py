@@ -15,7 +15,7 @@ class SpaceSerializer(DynamicFieldsModelSerializer):
     class Meta:
 
         model = models.Space
-        fields = '__all__'
+        exclude = ('created_by', 'created_datetime')
         extra_kwargs = {
             'created_by': {'read_only': True}
         }
@@ -35,7 +35,6 @@ class SpaceSerializer(DynamicFieldsModelSerializer):
         """
             gets the rules for the space
         """
-
         return RuleSerializer(models.Rule.objects.filter(space=obj), many=True).data
 
     def get_is_staff(self, obj):
@@ -79,33 +78,38 @@ class MessageSerializer(serializers.ModelSerializer):
     is_staff = serializers.SerializerMethodField() # lets user know if the message is from staff/moderator
     is_mod = serializers.SerializerMethodField() # lets user know if the message is from mod
 
-    reactions_count = serializers.SerializerMethodField()
-    reactions = serializers.SerializerMethodField()
+    # reactions_count = serializers.SerializerMethodField()
+    # reactions = serializers.SerializerMethodField()
 
     class Meta:
 
         model = models.Message
         fields = '__all__'
 
+        extra_kwargs = {
+            'datetime': {'read_only': True},
+            'user': {'read_only': True},
+        }
+
     def get_is_mod(self, obj):
         """
             returns true if the user is a modertor
         """
-
-        return models.Moderator.objects.filter(space=obj, user=self.context['request'].user.id).exists()
+        return models.Moderator.objects.filter(space=obj.space, user=self.context['request'].user.id).exists()
 
     def get_is_staff(self, obj):
         """
             returns if the user is staff 
         """
-        return User.objects.filter(id=self.context['request'].id, staff=True).exists()
+        return User.objects.filter(id=self.context['request'].user.id, is_staff=True).exists()
 
 
-    def get_reactions(self, obj):
+    # def get_reactions(self, obj):
 
-        """
-            gets the list of reaction by the user
-        """
+    #     """
+    #         gets the list of reaction by the user
+    #     """
+    #     return ReactionSerializer(Reaction.objects.filter()).data
 
 
 class ReactionSerializer(serializers.ModelSerializer):

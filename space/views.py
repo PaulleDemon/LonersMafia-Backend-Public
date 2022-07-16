@@ -53,14 +53,14 @@ class UpdateSpaceView(generics.GenericAPIView, mixins.UpdateModelMixin):
     """
 
     queryset = Space.objects.all()
-    serializer_class = Space
+    serializer_class = SpaceSerializer
     permission_classes = [ModeratorPermission]
-    lookup_field = 'space'
+    lookup_field = 'id'
 
     def put(self, request, *args, **kwargs):
 
         if 'name' in request.data:
-            return Response({'cannot update': 'you cannot update the name of the space'}, code=status.HTTP_400_BAD_REQUEST)
+            return Response({'cannot update': 'you cannot update the name of the space'}, status=status.HTTP_400_BAD_REQUEST)
 
         return self.partial_update(request, *args, **kwargs)
 
@@ -73,6 +73,7 @@ class ListSpaceView(generics.GenericAPIView, mixins.ListModelMixin):
     queryset = Space.objects.all()
     serializer_class = SpaceSerializer
     permission_classes = [permissions.AllowAny]
+    ordering = ['-created_datetime']
 
     def get(self, request, *args, **kwargs):
         
@@ -80,7 +81,7 @@ class ListSpaceView(generics.GenericAPIView, mixins.ListModelMixin):
 
         if list_type is None:
             query = self.get_queryset().order_by('-message__datetime')
-            serializer = self.get_serializer(query, context={'request': request})
+            serializer = self.get_serializer(query, context={'request': request}, many=True)
 
             return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -114,10 +115,20 @@ class MessageCreateView(generics.GenericAPIView, mixins.CreateModelMixin):
     permission_classes = [AnyOneButBannedPermission|OnlyRegisteredPermission]
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
-    lookup_field = 'space'
+    # lookup_field = 'space'
 
     def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
+
+        serializer = self.get_serializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+
+        model = Message(**serializer.validated_data)
+        model.user = self.request.user
+        model.save()
+
+        new_serializer = self.get_serializer(instance=model, context={'request': request})
+
+        return Response(new_serializer.data, status=status.HTTP_201_CREATED)
 
 
 class MessageDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
