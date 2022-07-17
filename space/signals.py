@@ -33,7 +33,7 @@ def on_mod_delete(sender, instance, *args, **kwargs):
         msg = models.Message.objects.filter(space=instance.space).annotate(freq_messages=Count('user')).order_by('-freq_messages', '-datetime')
 
         if msg.exists():
-            print("Message: ", msg)
+
             user = msg.first()
             if user:
                 models.Moderator.objects.create(user=user.user, space=instance.space)

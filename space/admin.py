@@ -69,10 +69,10 @@ class BannedUserFromSpaceAdmin(admin.ModelAdmin):
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
 
-    list_display = ['id', 'user']
+    list_display = ['id', 'user', 'space']
     ordering = ['-datetime']
 
-    search_fields = ['user__name', 'message']
+    search_fields = ['user__name', 'message', 'space__name']
 
 
 @admin.register(Reaction)

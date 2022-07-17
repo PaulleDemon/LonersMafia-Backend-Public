@@ -66,7 +66,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     def space_exists(self, space):
         """ checks if the space exists """
 
-        return Space.objects.filter(name__iexact=space).exists()
+        return Space.objects.filter(name=space).exists()
 
     async def connect(self):
 
@@ -78,6 +78,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
         if not await self.space_exists(self.room_name):
+        
             await self.close(3404) # space not found
             # self.send(text_data="Space doesn't exist", close=1008)
             return

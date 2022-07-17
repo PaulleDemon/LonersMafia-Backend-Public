@@ -25,16 +25,24 @@ class LoginUserView(generics.GenericAPIView, mixins.ListModelMixin):
 
         ip_address, is_routable = get_client_ip(request)
 
-        try:
-            user = User.objects.get(ip_address=ip_address)
-            logout(request) # log them out before logging them in
-            login(request, user)
-            serialized = self.get_serializer(instance=user)
+        if ip_address:
 
-            return Response(serialized.data, status=status.HTTP_200_OK)
+            if BlacklistedIp.objects.filter(ip_address=ip_address):
+                return Response({'banned': 'you are banned from loners. Look what you have done to yourself. Be a good loner next time.'}, status=status.HTTP_417_EXPECTATION_FAILED)
 
-        except (User.DoesNotExist, User.MultipleObjectsReturned):
-            return Response({'doesn\'t exist': 'User doesn\'t exist'}, status=status.HTTP_401_UNAUTHORIZED)
+            try:
+                user = User.objects.get(ip_address=ip_address)
+                logout(request) # log them out before logging them in
+                login(request, user)
+                serialized = self.get_serializer(instance=user)
+
+                return Response(serialized.data, status=status.HTTP_200_OK)
+
+            except (User.DoesNotExist, User.MultipleObjectsReturned) as e:
+                print("Error: ", e)
+                return Response({'doesn\'t exist': 'User doesn\'t exist'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        return Response({'ip error': 'Your ip address is missing or fishy'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class CreateUserView(generics.GenericAPIView, mixins.CreateModelMixin):
@@ -56,7 +64,7 @@ class CreateUserView(generics.GenericAPIView, mixins.CreateModelMixin):
         ip_address, is_routable = get_client_ip(request)
 
         if ip_address:
-     
+
             # print("SErialized data: ", serializer.data)
             user = serializer.save()
             user.ip_address = ip_address
