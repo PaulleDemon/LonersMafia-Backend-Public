@@ -31,14 +31,16 @@ ALLOWED_HOSTS = []
 
 if DEBUG:
 
-    ALLOWED_HOSTS += ['localhost', 'localhost:8000', 'localhost:3000']
+    ALLOWED_HOSTS += ['localhost', 'localhost:8000', 'localhost:3000', ]
 
 
 CORS_ALLOWED_ORIGINS = []
 
-if DEBUG:
-    CORS_ALLOWED_ORIGINS += ['http://localhost:3000']
+CORS_ORIGIN_WHITELIST = []
 
+if DEBUG:
+    CORS_ALLOWED_ORIGINS += ['http://localhost:3000', 'http://localhost', 'http://localhost:8000']
+    CORS_ORIGIN_WHITELIST += ['http://localhost:3000/']
 
 SITE_DOMAIN = ''
 
@@ -65,9 +67,9 @@ INSTALLED_APPS = [
     'space',
 
     #3rd party
+    'corsheaders',
     'channels',
     'rest_framework',
-    'corsheaders',
 ]
 
 AUTH_USER_MODEL = "user.User" 
@@ -90,6 +92,7 @@ CHANNEL_LAYERS = {
 
 
 MIDDLEWARE = [
+
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
 

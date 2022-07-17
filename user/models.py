@@ -76,7 +76,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(default=timezone.now) # you can also use auto_add_now=True
 
     def __str__(self):
-        return self.name
+        return f'{self.name}'
     
     def clean(self) -> None:
 

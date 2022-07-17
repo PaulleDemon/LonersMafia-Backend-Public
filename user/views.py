@@ -4,6 +4,7 @@ from django.forms import ValidationError
 from django.contrib.auth import login
 
 from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import generics, mixins, status
 
 from utils.permissions import AnyOneButBannedPermission, IsStaffPermission, IsUsersObjectPermission
@@ -44,20 +45,27 @@ class CreateUserView(generics.GenericAPIView, mixins.CreateModelMixin):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AnyOneButBannedPermission]
+    parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request, *args, **kwargs):
 
+        print("Data: ", request.data) 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         ip_address, is_routable = get_client_ip(request)
 
         if ip_address:
-
-            User.objects.create(**serializer.data, ip_address=ip_address)
-            
+     
+            # print("SErialized data: ", serializer.data)
+            user = serializer.save()
+            user.ip_address = ip_address
+            user.save()
+            # user = User.objects.create(**serializer.data, ip_address=ip_address)
             headers = self.get_success_headers(serializer.data)
-            return Response(status=status.HTTP_201_CREATED, headers=headers)
+            login(request, user)
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
     
         return Response(status.HTTP_400_BAD_REQUEST) 
     

@@ -75,12 +75,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = 'chat_%s' % self.room_name
 
-        print("Scope:", self.scope)
         await self.accept()
 
         if not await self.space_exists(self.room_name):
             await self.close(3404) # space not found
-            print("Connection closed")
             # self.send(text_data="Space doesn't exist", close=1008)
             return
 

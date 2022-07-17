@@ -1,3 +1,4 @@
+from typing import OrderedDict
 from django.core.exceptions import ValidationError
 
 from rest_framework import status, serializers
@@ -7,17 +8,19 @@ from utils.customserializers import DynamicFieldsModelSerializer
 
 from django.conf import settings
 
+
 class UserSerializer(DynamicFieldsModelSerializer):
 
-    avatar = serializers.SerializerMethodField()
+    avatar_url = serializers.SerializerMethodField()
 
     class Meta:
 
         model = User
-        exclude = ('ip_address', 'email', 'password', 
-                    'last_login', 'is_superuser', 'is_admin', 
-                    'is_active', 'groups', 'date_joined', 'user_permissions'
-                    )
+        fields = ('name', 'avatar', 'tag_line', 'avatar_url')
+        # exclude = ('ip_address', 'email', 'password', 
+        #             'last_login', 'is_superuser', 'is_admin', 
+        #             'is_active', 'groups', 'date_joined', 'user_permissions'
+        #             )
         extra_kwargs = {
             'ip_address': {'read_only': True},
             'is_staff': {'read_only': True},
@@ -36,7 +39,12 @@ class UserSerializer(DynamicFieldsModelSerializer):
 
         return super().validate(attrs)
 
-    def get_avatar(self, obj):
+    def get_avatar_url(self, obj):
+        """
+            Gets full url improtant for sending images through sockets
+        """
+        if isinstance(obj, OrderedDict):
+            return None
 
         if obj.avatar:
             return settings.MEDIA_DOMAIN+obj.avatar.url

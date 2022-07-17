@@ -4,3 +4,4 @@ daphne==3.0.2
 djangorestframework==3.13.1
 django-ipware==4.0.2
 django-cors-headers==3.13.0
+pillow==9.2.0
