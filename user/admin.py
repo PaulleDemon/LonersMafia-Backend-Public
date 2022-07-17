@@ -17,6 +17,7 @@ class UserAdmin(admin.ModelAdmin):
     )
 
     readonly_fields = ['id', 'date_joined']
+    actions = ['blacklist_user', 'destroy_and_blacklistuser']
 
     @admin.action(description='Black list the user')
     def blacklist_user(self, request, queryset):
@@ -32,7 +33,7 @@ class UserAdmin(admin.ModelAdmin):
 
         self.blacklist_user(request, queryset)
 
-        User.objects.filter(user__in=queryset).delete()
+        User.objects.filter(id__in=queryset).delete()
 
         self.message_user(request, 'user was successfully blacklisted and removed', messages.SUCCESS)
 

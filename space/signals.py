@@ -32,9 +32,11 @@ def on_mod_delete(sender, instance, *args, **kwargs):
     if not models.Moderator.objects.filter(space=instance.space).exists(): 
         msg = models.Message.objects.filter(space=instance.space).annotate(freq_messages=Count('user')).order_by('-freq_messages', '-datetime')
 
-        user = msg.first()
-        if user:
-            models.Moderator.objects.create(user=user.user)
+        if msg.exists():
+            print("Message: ", msg)
+            user = msg.first()
+            if user:
+                models.Moderator.objects.create(user=user.user, space=instance.space)
 
 
 @receiver(post_save, sender=models.Message)

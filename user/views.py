@@ -1,7 +1,7 @@
 from ipware import get_client_ip
 
 from django.forms import ValidationError
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -27,13 +27,14 @@ class LoginUserView(generics.GenericAPIView, mixins.ListModelMixin):
 
         try:
             user = User.objects.get(ip_address=ip_address)
+            logout(request) # log them out before logging them in
             login(request, user)
             serialized = self.get_serializer(instance=user)
 
             return Response(serialized.data, status=status.HTTP_200_OK)
 
         except (User.DoesNotExist, User.MultipleObjectsReturned):
-            return Response({'doesn\'t exist': 'User doesn\'t exist'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'doesn\'t exist': 'User doesn\'t exist'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class CreateUserView(generics.GenericAPIView, mixins.CreateModelMixin):
@@ -49,7 +50,6 @@ class CreateUserView(generics.GenericAPIView, mixins.CreateModelMixin):
 
     def post(self, request, *args, **kwargs):
 
-        print("Data: ", request.data) 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
