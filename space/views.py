@@ -66,18 +66,23 @@ class UpdateSpaceView(generics.GenericAPIView, mixins.UpdateModelMixin):
         return self.partial_update(request, *args, **kwargs)
 
 
-class ListSpaceView(generics.GenericAPIView, mixins.ListModelMixin):
+class ListSpaceView(generics.GenericAPIView, mixins.ListModelMixin, mixins.RetrieveModelMixin):
 
     """
-        Lists all the spaces.
+        Lists or gets the spaces.
     """
     queryset = Space.objects.all()
     serializer_class = SpaceSerializer
     permission_classes = [permissions.AllowAny]
     ordering = ['-created_datetime']
+    lookup_field = 'name'
 
     def get(self, request, *args, **kwargs):
         
+        print("KWargs: ", kwargs)
+        if kwargs.get('name'):
+            return self.retrieve(request, *args, **kwargs)
+
         list_type = request.query_params.get('type')
 
         if list_type is None:
@@ -87,6 +92,7 @@ class ListSpaceView(generics.GenericAPIView, mixins.ListModelMixin):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return self.list(request, *args, **kwargs)
+
 
 class BanFromSpaceView():
     pass

@@ -11,6 +11,9 @@ from user.serializers import UserSerializer
 
 class SpaceSerializer(DynamicFieldsModelSerializer):
 
+    is_mod = serializers.SerializerMethodField()
+    is_staff = serializers.SerializerMethodField()
+
     rules = serializers.SerializerMethodField()
     mods = serializers.SerializerMethodField()
 
@@ -43,7 +46,7 @@ class SpaceSerializer(DynamicFieldsModelSerializer):
         """
             returns if the user is staff 
         """
-        return User.objects.filter(id=self.context['request'].id, staff=True).exists()
+        return User.objects.filter(id=self.context['request'].user.id, is_staff=True).exists()
 
     def get_mods(self, obj):
         """
@@ -51,7 +54,7 @@ class SpaceSerializer(DynamicFieldsModelSerializer):
         """
         return ModeratorSerializer(models.Moderator.objects.filter(space=obj), many=True).data
 
-    def is_mod(self, obj):
+    def get_is_mod(self, obj):
         """
             returns true if the user is a modertor
         """
@@ -79,7 +82,7 @@ class MessageSerializer(serializers.ModelSerializer):
 
     user = UserSerializer(fields=('id', 'name', 'avatar_url'))
     is_sender = serializers.SerializerMethodField() # lets user know if the user is the sender
-    
+
     is_staff = serializers.SerializerMethodField() # lets user know if the message is from staff/moderator
     is_mod = serializers.SerializerMethodField() # lets user know if the message is from mod
 
@@ -113,19 +116,19 @@ class MessageSerializer(serializers.ModelSerializer):
         """
             returns true if the user is a modertor
         """
-        request = self.context.get('request')
-        user = request.user.id if request else self.context.get('user')
+        # request = self.context.get('request')
+        # user = request.user.id if request else self.context.get('user')
 
-        return models.Moderator.objects.filter(space=obj.space, user=user).exists()
+        return models.Moderator.objects.filter(space=obj.space, user=obj.user).exists()
 
     def get_is_staff(self, obj):
         """
             returns if the user is staff 
         """
-        request = self.context.get('request')
-        user = request.user.id if request else self.context.get('user')
+        # request = self.context.get('request')
+        # user = request.user.id if request else self.context.get('user')
 
-        return User.objects.filter(id=user, is_staff=True).exists()
+        return User.objects.filter(id=obj.user.id, is_staff=True).exists()
 
 
     # def get_reactions(self, obj):

@@ -85,9 +85,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         if len(self.name) < 3:
             raise ValidationError(message='user name is too short', code=status.HTTP_400_BAD_REQUEST)
 
-        if User.objects.filter(name__iexact=self.name).exists():
-            raise ValidationError(message='This name is taken', code=status.HTTP_400_BAD_REQUEST)
-
         return super().clean()
 
 
