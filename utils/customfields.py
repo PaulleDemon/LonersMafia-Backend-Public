@@ -32,10 +32,22 @@ class ContentTypeRestrictedFileField(FileField):
             if content_type in self.content_types:
                 if file.size > self.max_upload_size:
 
-                    raise forms.ValidationError(_(f'Please keep filesize under {format_bytes(self.max_upload_size)}. Current filesize {format_bytes(file.size)}'))
+                    raise forms.ValidationError(f'Please keep filesize under {format_bytes(self.max_upload_size)}. Current filesize {format_bytes(file.size)}')
             else:
-                raise forms.ValidationError(_('Filetype not supported.'))
+                raise forms.ValidationError('Filetype not supported.')
         except AttributeError:
             pass
 
         return data
+
+
+def format_bytes(size):
+    """ formats the bytes into human readable form """
+    # 2**10 = 1024
+    power = 2**10
+    n = 0
+    power_labels = {0 : '', 1: 'k', 2: 'm', 3: 'g', 4: 't'}
+    while size > power:
+        size /= power
+        n += 1
+    return f"{round(size, 2)} {power_labels[n]}b"

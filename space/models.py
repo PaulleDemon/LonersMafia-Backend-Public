@@ -23,13 +23,13 @@ class Space(models.Model):
     name = models.CharField(max_length=30, null=False, unique=True, validators=[space_name_validator])
     verbose_name = models.CharField(max_length=40, null=True, blank=True) # this is a verbose name (invite to join memers)
 
-    icon = ContentTypeRestrictedFileField(upload_to='space-dashboards/', content_types=['image/png', 'image/jpeg', 'image/gif', 'image/svg'], 
+    icon = ContentTypeRestrictedFileField(upload_to='space-dashboards/', content_types=['image/png', 'image/jpeg', 'image/gif', 'image/svg+xml'], 
                                             max_upload_size=5242880, null=True, blank=True, default='space-dashboards/loner-icon.svg')
     about = models.CharField(max_length=350, null=True, blank=True)
     tag_line = models.CharField(max_length=60, default="", null=True, blank=True)
 
     color_theme = models.CharField(max_length=16, validators=[color_validator], default="#f5d1e0", null=False, blank=False) 
-    background_image = ContentTypeRestrictedFileField(upload_to='space_background/', content_types=['image/png', 'image/jpeg', 'image/gif', 'image/svg'],
+    background_image = ContentTypeRestrictedFileField(upload_to='space_background/', content_types=['image/png', 'image/jpeg', 'image/gif', 'image/svg+xml'],
                                                         max_upload_size=5242880, null=True, blank=True)
 
     created_datetime = models.DateTimeField(auto_now_add=True)
@@ -51,8 +51,8 @@ class Space(models.Model):
 
     def clean(self) -> None:
 
-        if Space.objects.filter(name__iexact=self.name).exists():
-            raise ValidationError(message='This space already exists.', code=status.HTTP_400_BAD_REQUEST)
+        # if Space.objects.filter(name__iexact=self.name).exists():
+        #     raise ValidationError(message='This space already exists.', code=status.HTTP_400_BAD_REQUEST)
 
         return super().clean()
 

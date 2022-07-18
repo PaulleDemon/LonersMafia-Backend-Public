@@ -40,7 +40,8 @@ CORS_ORIGIN_WHITELIST = []
 
 if DEBUG:
     CORS_ALLOWED_ORIGINS += ['http://localhost:3000', 'http://localhost', 'http://localhost:8000']
-    CORS_ORIGIN_WHITELIST += ['http://localhost:3000/']
+    CORS_ORIGIN_WHITELIST += ['http://localhost:3000']
+    CORS_ORIGIN_ALLOW_ALL=True
 
 SITE_DOMAIN = ''
 

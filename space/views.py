@@ -79,7 +79,6 @@ class ListSpaceView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retri
 
     def get(self, request, *args, **kwargs):
         
-        print("KWargs: ", kwargs)
         if kwargs.get('name'):
             return self.retrieve(request, *args, **kwargs)
 
@@ -135,15 +134,15 @@ class MessageCreateView(generics.GenericAPIView, mixins.CreateModelMixin):
     # lookup_field = 'space'
 
     def post(self, request, *args, **kwargs):
-
+        
         serializer = self.get_serializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
 
-        model = Message(**serializer.validated_data)
-        model.user = self.request.user
-        model.save()
+        msg = serializer.save()
+        msg.user = self.request.user
+        msg.save()
 
-        new_serializer = self.get_serializer(instance=model, context={'request': request})
+        new_serializer = self.get_serializer(msg, context={'request': request})
 
         return Response(new_serializer.data, status=status.HTTP_201_CREATED)
 

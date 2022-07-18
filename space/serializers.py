@@ -80,13 +80,13 @@ class ModeratorSerializer(serializers.ModelSerializer):
 
 class MessageSerializer(serializers.ModelSerializer):
 
-    user = UserSerializer(fields=('id', 'name', 'avatar_url'))
+    user = UserSerializer(fields=('id', 'name', 'avatar_url'), read_only=True)
     is_sender = serializers.SerializerMethodField() # lets user know if the user is the sender
 
     is_staff = serializers.SerializerMethodField() # lets user know if the message is from staff/moderator
     is_mod = serializers.SerializerMethodField() # lets user know if the message is from mod
 
-    media = serializers.SerializerMethodField()
+    media_url = serializers.SerializerMethodField()
     # reactions_count = serializers.SerializerMethodField()
     # reactions = serializers.SerializerMethodField()
 
@@ -100,7 +100,7 @@ class MessageSerializer(serializers.ModelSerializer):
             'user': {'read_only': True},
         }
 
-    def get_media(self, obj):
+    def get_media_url(self, obj):
         
         if obj.media:
             return settings.MEDIA_DOMAIN+obj.media.url
@@ -138,6 +138,10 @@ class MessageSerializer(serializers.ModelSerializer):
     #     """
     #     return ReactionSerializer(Reaction.objects.filter()).data
 
+    def create(self, validated_data):
+        validated_data['user'] = self.context['request'].user
+        print("Suprise: ", validated_data)
+        return super().create(validated_data)
 
 class ReactionSerializer(serializers.ModelSerializer):
 

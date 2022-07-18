@@ -57,7 +57,7 @@ user_name_validator = RegexValidator(regex='^[a-zA-Z][a-zA-Z0-9_-]+$', message='
 class User(AbstractBaseUser, PermissionsMixin):
 
     name = models.CharField(unique=True, null=True, blank=False, max_length=30, validators=[user_name_validator])
-    avatar = ContentTypeRestrictedFileField(upload_to='avatars/', content_types=['image/png', 'image/jpeg'], 
+    avatar = ContentTypeRestrictedFileField(upload_to='avatars/', content_types=['image/png', 'image/jpeg', 'image/svg+xml'], 
             max_upload_size=10485760, default='avatars/avatar-default.svg', null=True)  # 20 mb max
 
     #TODO: make ip field unique
