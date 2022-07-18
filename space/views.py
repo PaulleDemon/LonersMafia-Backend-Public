@@ -1,3 +1,4 @@
+from genericpath import exists
 from ipware import get_client_ip
 
 from rest_framework.response import Response
@@ -6,7 +7,7 @@ from rest_framework import generics, mixins, status, permissions
 from utils.permissions import AnyOneButBannedPermission, ModeratorPermission, OnlyRegisteredPermission, IsStaffPermission
 
 from user.models import User
-from .models import Reaction, Space, Message
+from .models import Moderator, Reaction, Space, Message
 from .serializers import ReactionSerializer, SpaceSerializer, MessageSerializer
 
 
@@ -87,6 +88,9 @@ class ListSpaceView(generics.GenericAPIView, mixins.ListModelMixin):
 
         return self.list(request, *args, **kwargs)
 
+class BanFromSpaceView():
+    pass
+
 
 # -------------------------------------- Message views ------------------------------
 class MessageListView(generics.GenericAPIView, mixins.ListModelMixin):
@@ -102,7 +106,14 @@ class MessageListView(generics.GenericAPIView, mixins.ListModelMixin):
     ordering_fields = ['datetime']
     ordering = ['-datetime']
 
+    def get_queryset(self):
+        return Message.objects.filter(space__name=self.kwargs['space']).order_by('-datetime')
+
     def get(self, request, *args, **kwargs):
+        
+        if not Space.objects.filter(name=kwargs.get('space')).exists():
+            return Response({'doesn\'t exist': 'This space doesn\'t exist'}, status=status.HTTP_404_NOT_FOUND)
+
         return self.list(request, *args, **kwargs)
 
 
@@ -143,6 +154,13 @@ class MessageDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
     lookup_field = 'id'
 
     def delete(self, request, *args, **kwargs):
+
+        message = Message.objects.filter(id=kwargs['id'])
+
+        if (message.first() and message.first().user != request.user and 
+                Moderator.objects.filter(user__in=message.values('user'), space__in=message.values('space')).exists()):
+            return Response({'forbidden': 'only staff can delete other moderators messaeges'}, status=status.HTTP_403_FORBIDDEN)
+
         return self.destroy(request, *args, **kwargs)
 
 

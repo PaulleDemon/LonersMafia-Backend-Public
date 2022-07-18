@@ -1,6 +1,5 @@
 from ipware import get_client_ip
 
-from django.forms import ValidationError
 from django.contrib.auth import login, logout
 
 from rest_framework.response import Response
@@ -39,7 +38,7 @@ class LoginUserView(generics.GenericAPIView, mixins.ListModelMixin):
                 return Response(serialized.data, status=status.HTTP_200_OK)
 
             except (User.DoesNotExist, User.MultipleObjectsReturned) as e:
-                print("Error: ", e)
+                # print("Error: ", e)
                 return Response({'doesn\'t exist': 'User doesn\'t exist'}, status=status.HTTP_401_UNAUTHORIZED)
 
         return Response({'ip error': 'Your ip address is missing or fishy'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -119,6 +118,7 @@ class BanUserFromNetworkView(generics.GenericAPIView, mixins.CreateModelMixin):
 
         BlacklistedIp.objects.create(ip_address=user.ip_address)
 
+        logout(request)
         # if request.query_params.get('delete') == 'true':
         user.delete()
 

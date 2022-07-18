@@ -23,8 +23,8 @@ class Space(models.Model):
     name = models.CharField(max_length=30, null=False, unique=True, validators=[space_name_validator])
     verbose_name = models.CharField(max_length=40, null=True, blank=True) # this is a verbose name (invite to join memers)
 
-    icon = ContentTypeRestrictedFileField(upload_to='space-icons/', content_types=['image/png', 'image/jpeg', 'image/gif', 'image/svg'], 
-                                            max_upload_size=5242880, null=True, blank=True)
+    icon = ContentTypeRestrictedFileField(upload_to='space-dashboards/', content_types=['image/png', 'image/jpeg', 'image/gif', 'image/svg'], 
+                                            max_upload_size=5242880, null=True, blank=True, default='space-dashboards/loner-icon.svg')
     about = models.CharField(max_length=350, null=True, blank=True)
     tag_line = models.CharField(max_length=60, null=True, blank=True)
 
@@ -95,7 +95,7 @@ class Message(models.Model):
 
     message = models.TextField(max_length=2500, null=True)
     media = ContentTypeRestrictedFileField(upload_to='chat-media/', content_types=['image/png', 'image/jpeg', 'image/gif', 'image/svg'], 
-                                            max_upload_size=10485760, null=True)  # 20 mb max
+                                            max_upload_size=10485760, null=True, blank=True)  # 20 mb max
     
     datetime = models.DateTimeField(default=timezone.now) #auto_now_add=True
 

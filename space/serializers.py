@@ -77,7 +77,7 @@ class ModeratorSerializer(serializers.ModelSerializer):
 
 class MessageSerializer(serializers.ModelSerializer):
 
-    user = UserSerializer(fields=('name', 'avatar_url'))
+    user = UserSerializer(fields=('id', 'name', 'avatar_url'))
     is_sender = serializers.SerializerMethodField() # lets user know if the user is the sender
     
     is_staff = serializers.SerializerMethodField() # lets user know if the message is from staff/moderator

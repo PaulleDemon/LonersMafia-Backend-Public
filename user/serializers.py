@@ -16,7 +16,7 @@ class UserSerializer(DynamicFieldsModelSerializer):
     class Meta:
 
         model = User
-        fields = ('name', 'avatar', 'tag_line', 'avatar_url')
+        fields = ('id', 'name', 'avatar', 'tag_line', 'avatar_url')
         # exclude = ('ip_address', 'email', 'password', 
         #             'last_login', 'is_superuser', 'is_admin', 
         #             'is_active', 'groups', 'date_joined', 'user_permissions'
