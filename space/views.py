@@ -21,7 +21,8 @@ class CreateSpaceView(generics.GenericAPIView, mixins.CreateModelMixin):
 
     queryset = Space.objects.all()
     serializer_class = SpaceSerializer
-    permission_classes = [AnyOneButBannedPermission | OnlyRegisteredPermission]
+    permissions.IsAuthenticated
+    permission_classes = [permissions.IsAuthenticated, AnyOneButBannedPermission, OnlyRegisteredPermission]
 
     def post(self, request, *args, **kwargs):
         # created = self.create(request, *args, **kwargs)
@@ -127,16 +128,18 @@ class MessageCreateView(generics.GenericAPIView, mixins.CreateModelMixin):
     """
         creates message
     """
-
-    permission_classes = [AnyOneButBannedPermission|OnlyRegisteredPermission]
+    
+    permission_classes = [permissions.IsAuthenticated, AnyOneButBannedPermission, OnlyRegisteredPermission]
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
     # lookup_field = 'space'
 
     def post(self, request, *args, **kwargs):
         
+        print("User: ", request.user)
         serializer = self.get_serializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
+
 
         msg = serializer.save()
         msg.user = self.request.user

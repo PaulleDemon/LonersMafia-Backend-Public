@@ -41,7 +41,21 @@ CORS_ORIGIN_WHITELIST = []
 if DEBUG:
     CORS_ALLOWED_ORIGINS += ['http://localhost:3000', 'http://localhost', 'http://localhost:8000']
     CORS_ORIGIN_WHITELIST += ['http://localhost:3000']
-    CORS_ORIGIN_ALLOW_ALL=True
+    # CORS_ORIGIN_ALLOW_ALL=True
+    CORS_ALLOW_CREDENTIALS=True
+    CSRF_TRUSTED_ORIGINS=['http://localhost:3000']
+
+# CORS_ALLOW_HEADERS = [
+#     "accept",
+#     "accept-encoding",
+#     "authorization",
+#     "content-type",
+#     "dnt",
+#     "origin",
+#     "user-agent",
+#     "x-csrftoken",
+#     "x-requested-with",
+# ]
 
 SITE_DOMAIN = ''
 
@@ -56,6 +70,12 @@ if DEBUG:
 
 # Application definition
 INSTALLED_APPS = [
+
+    #3rd party
+    'corsheaders',
+    'channels',
+    'rest_framework',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -66,11 +86,6 @@ INSTALLED_APPS = [
     # apps
     'user',
     'space',
-
-    #3rd party
-    'corsheaders',
-    'channels',
-    'rest_framework',
 ]
 
 AUTH_USER_MODEL = "user.User" 
@@ -121,7 +136,12 @@ if DEBUG:
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'utils.pagination.CustomPageNumber',
     'PAGE_SIZE': 10,
-    'DEFAULT_RENDERER_CLASSES': DEFAULT_RENDERER_CLASSES
+    'DEFAULT_RENDERER_CLASSES': DEFAULT_RENDERER_CLASSES,
+
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ]
 }
 
 
