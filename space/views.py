@@ -98,16 +98,19 @@ class ListSpaceView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retri
         else:
             
             if list_type == 'recent':
-                query = Space.objects.filter(message__user=user).order_by('-message__datetime')
-            
-            elif list_type == 'moderated':
-                query = Space.objects.filter(moderator__user=user).order_by('-moderator__datetime', '-id')
+                sub_query = Space.objects.filter(message__user=user).order_by('id', '-message__datetime').distinct('id')
+                query = Space.objects.filter(id__in=sub_query).order_by('-message__datetime')
+
+            elif list_type == 'moderating':
+                sub_query = Space.objects.filter(moderator__user=user).order_by('id', '-moderator__datetime').distinct('id')
+                query = Space.objects.filter(id__in=sub_query).order_by('-moderator__datetime')
 
             elif list_type == 'trending':
-                query = Space.objects.all().order_by('-message__datetime', '-id')
+                sub_query = Space.objects.order_by('id', '-message__datetime').distinct('id') # you can't use distinct with order_by hence the hack
+                query = Space.objects.filter(id__in=sub_query).order_by('-message__datetime')
 
             else:
-                query = Space.objects.all()
+                query = Space.objects.all().order_by('-created_datetime')
 
             print("QUERY: ", query)
             paginated_queryset = self.paginate_queryset(query)

@@ -10,8 +10,15 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
+import environ
 from pathlib import Path
+from email.headerregistry import Address
 from logging.handlers import SysLogHandler
+
+
+env = environ.Env()
+# reading .env file
+environ.Env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +27,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
+# TODO: SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-)scsh6_myslqst35cyvnv2@^0a-z7^zaw=r#b7*tai2z5%ypzz'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+USESQLITE_DEV=False # to use sqlite database set this to true in development
 
 ALLOWED_HOSTS = []
 
@@ -45,17 +53,6 @@ if DEBUG:
     CORS_ALLOW_CREDENTIALS=True
     CSRF_TRUSTED_ORIGINS=['http://localhost:3000']
 
-# CORS_ALLOW_HEADERS = [
-#     "accept",
-#     "accept-encoding",
-#     "authorization",
-#     "content-type",
-#     "dnt",
-#     "origin",
-#     "user-agent",
-#     "x-csrftoken",
-#     "x-requested-with",
-# ]
 
 SITE_DOMAIN = ''
 
@@ -168,12 +165,43 @@ ASGI_APPLICATION = 'loner.asgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+if DEBUG:
+    if USESQLITE_DEV:
+            DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.sqlite3',
+                    'NAME': BASE_DIR / 'db.sqlite3',
+                }
+            }
+
+    else:
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql_psycopg2',
+                'NAME': env('DEV_DB_NAME'),
+                'USER': env('DEV_DB_USER'),
+                'PASSWORD': env('DEV_DB_PASSWORD'),
+                'HOST': env('DEV_DB_HOST'),
+                'PORT': '5432',
+            }
+        }
+
+
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # This is only for development
+
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' # for production
+
+
+EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_HOST = 'smtpout.secureserver.net'
+# EMAIL_PORT = 587
+EMAIL_PORT = 465
+EMAIL_USE_TLS = True
+
+# DEFAULT_FROM_EMAIL = Address(display_name="Peck Space", addr_spec=EMAIL_HOST_USER)
+
 
 
 # Password validation
