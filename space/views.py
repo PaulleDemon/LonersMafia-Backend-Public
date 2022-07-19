@@ -84,15 +84,38 @@ class ListSpaceView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retri
         if kwargs.get('name'):
             return self.retrieve(request, *args, **kwargs)
 
-        list_type = request.query_params.get('type')
+        user = request.query_params.get('user')
+        list_type = request.query_params.get('sort')
 
         if list_type is None:
             query = self.get_queryset().order_by('-message__datetime')
-            serializer = self.get_serializer(query, context={'request': request}, many=True)
+            paginated_queryset = self.paginate_queryset(query)
+            serializer = self.get_serializer(paginated_queryset, context={'request': request}, many=True)
 
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return self.get_paginated_response(serializer.data)
+            # return Response(serializer.data, status=status.HTTP_200_OK)
 
-        return self.list(request, *args, **kwargs)
+        else:
+            
+            if list_type == 'recent':
+                query = Space.objects.filter(message__user=user).order_by('-message__datetime')
+            
+            elif list_type == 'moderated':
+                query = Space.objects.filter(moderator__user=user).order_by('-moderator__datetime', '-id')
+
+            elif list_type == 'trending':
+                query = Space.objects.all().order_by('-message__datetime', '-id')
+
+            else:
+                query = Space.objects.all()
+
+            print("QUERY: ", query)
+            paginated_queryset = self.paginate_queryset(query)
+            serializer = self.get_serializer(paginated_queryset, context={'request': request}, many=True)
+
+            return self.get_paginated_response(serializer.data)
+
+        # return self.list(request, *args, **kwargs)
 
 
 class AssignModView(generics.GenericAPIView, mixins.CreateModelMixin):

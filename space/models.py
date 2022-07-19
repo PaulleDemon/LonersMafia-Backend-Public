@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
@@ -83,6 +84,7 @@ class Moderator(models.Model):
 
     space = models.ForeignKey(Space, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    datetime = models.DateTimeField(auto_now_add=True) # date time when the user was made moderator of that space
 
     def __str__(self):
         return f'{self.user.name} is a mod of {self.space.name}'
