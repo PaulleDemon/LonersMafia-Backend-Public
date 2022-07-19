@@ -104,9 +104,6 @@ class AssignModView(generics.GenericAPIView, mixins.CreateModelMixin):
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
 
-class BanFromSpaceView():
-    pass
-
 
 # -------------------------------------- Message views ------------------------------
 class MessageListView(generics.GenericAPIView, mixins.ListModelMixin):
@@ -174,7 +171,8 @@ class MessageDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
 
         message = Message.objects.filter(id=kwargs['id'])
 
-        if (message.first() and message.first().user != request.user and 
+        if (message.first() and message.first().user != request.user and
+                request.user and not request.user.is_staff and  
                 Moderator.objects.filter(user__in=message.values('user'), space__in=message.values('space')).exists()):
             return Response({'forbidden': 'only staff can delete other moderators messaeges'}, status=status.HTTP_403_FORBIDDEN)
 
@@ -182,7 +180,7 @@ class MessageDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
 
 
 # -------------------------------- staff/mod option view ----------------
-class ModOptions(APIView):
+class ModOptionsView(generics.GenericAPIView, mixins.CreateModelMixin):
 
     """
         query_param: deleteAll - set this to true if you want to delete all the messages of the user in the space
