@@ -1,14 +1,15 @@
 from genericpath import exists
 from ipware import get_client_ip
 
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import generics, mixins, status, permissions
 
 from utils.permissions import AnyOneButBannedPermission, ModeratorPermission, OnlyRegisteredPermission, IsStaffPermission
 
 from user.models import User
-from .models import Moderator, Reaction, Space, Message
-from .serializers import ReactionSerializer, SpaceSerializer, MessageSerializer
+from .models import Moderator, Reaction, Space, Message, BanUserFromSpace
+from .serializers import ModeratorSerializer, ReactionSerializer, SpaceSerializer, MessageSerializer
 
 
 
@@ -94,6 +95,15 @@ class ListSpaceView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retri
         return self.list(request, *args, **kwargs)
 
 
+class AssignModView(generics.GenericAPIView, mixins.CreateModelMixin):
+
+    queryset = Moderator.objects.all()
+    serializer_class = ModeratorSerializer
+    permission_classes = [permissions.IsAuthenticated, IsStaffPermission|ModeratorPermission]
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
 class BanFromSpaceView():
     pass
 
@@ -170,6 +180,40 @@ class MessageDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
 
         return self.destroy(request, *args, **kwargs)
 
+
+# -------------------------------- staff/mod option view ----------------
+class ModOptions(APIView):
+
+    """
+        query_param: deleteAll - set this to true if you want to delete all the messages of the user in the space
+
+        structure: {
+            id: <- message id,
+            space: <- space,
+            user: <- user who sent that message
+        }
+    """
+
+    permission_classes=[permissions.IsAuthenticated, ModeratorPermission|IsStaffPermission]
+
+    def post(self, request, *args, **kwargs):
+
+        if 'user' not in request.data or 'space' not in request.data or 'id' not in request.data:
+            return Response(data={'bad request': 'incorrect data'}, status=status.HTTP_400_BAD_REQUEST)
+
+        msg_id = request.data.get('id')
+        user = request.data.get('user')
+        space = request.data.get('space')
+
+        if request.query_params.get('deleteAll') == 'true':
+            Message.objects.filter(user=user, space=space).delete()
+
+        else:
+            Message.objects.filter(id=msg_id).delete()
+
+        BanUserFromSpace.objects.create(user=request)
+
+        return Response({'success': 'ban successful'}, status=status.HTTP_200_OK)
 
 # -------------------------------- react view ----------------------
 
