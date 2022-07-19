@@ -96,6 +96,17 @@ class UpdateUserView(generics.GenericAPIView, mixins.UpdateModelMixin):
         return self.partial_update(request, *args, **kwargs)
 
 
+class GetUserView(generics.GenericAPIView, mixins.RetrieveModelMixin):
+
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [AnyOneButBannedPermission]
+    lookup_field = 'name'
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+
 class BanUserFromNetworkView(generics.GenericAPIView, mixins.CreateModelMixin):
 
     """
