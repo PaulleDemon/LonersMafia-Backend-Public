@@ -101,11 +101,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
 
     # Receive message from WebSocket
-    #TODO: check if the user is allowed to send messages.
     async def receive(self, text_data):
         """ If text_data contains message it will be sent to save_message
          which will then save message in database. If it contains markread it will mark messages in 
          that room as read"""
+
+        if not await self.user_allowed():
+            await self.close(3401)
+            return 
+
         text_data_json = json.loads(text_data)
         
         message = None

@@ -31,7 +31,7 @@ class LoginUserView(generics.GenericAPIView, mixins.ListModelMixin):
 
             try:
                 user = User.objects.get(ip_address=ip_address)
-                logout(request) # log them out before logging them in
+                # logout(request) # don't log them out else sessionif will be lost
                 login(request, user)
                 serialized = self.get_serializer(instance=user)
 

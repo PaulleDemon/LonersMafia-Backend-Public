@@ -136,7 +136,6 @@ class MessageCreateView(generics.GenericAPIView, mixins.CreateModelMixin):
 
     def post(self, request, *args, **kwargs):
         
-        print("User: ", request.user)
         serializer = self.get_serializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
 
