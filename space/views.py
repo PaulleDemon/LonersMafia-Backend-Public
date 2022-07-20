@@ -79,10 +79,28 @@ class ListSpaceView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retri
     ordering = ['-created_datetime']
     lookup_field = 'name'
 
+    def valdate_query_params(self):
+
+        user = self.request.query_params.get('user')
+        # list_type = self.request.query_params.get('sort')
+
+        try:
+            
+            if user:
+                int(user)
+        
+        except ValueError:
+            return False
+
+        return True
+
     def get(self, request, *args, **kwargs):
         
         if kwargs.get('name'):
             return self.retrieve(request, *args, **kwargs)
+
+        if not self.valdate_query_params():
+            return Response({'invalid paramaters': 'invalid query parameters'}, status=status.HTTP_400_BAD_REQUEST)
 
         user = request.query_params.get('user')
         list_type = request.query_params.get('sort')
@@ -112,7 +130,6 @@ class ListSpaceView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retri
             else:
                 query = Space.objects.all().order_by('-created_datetime')
 
-            print("QUERY: ", query)
             paginated_queryset = self.paginate_queryset(query)
             serializer = self.get_serializer(paginated_queryset, context={'request': request}, many=True)
 
