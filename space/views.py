@@ -30,7 +30,9 @@ class CreateSpaceView(generics.GenericAPIView, mixins.CreateModelMixin):
 
         ip_address, is_routable = get_client_ip(request)
 
-        serializer = self.get_serializer(data=request.data)
+        print("FILE: ", request.data)
+
+        serializer = self.get_serializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
 
         model = Space(**serializer.validated_data)
@@ -41,7 +43,7 @@ class CreateSpaceView(generics.GenericAPIView, mixins.CreateModelMixin):
             model.created_by = user.first()
             model.save()
             
-            new_serializer = SpaceSerializer(model)
+            new_serializer = SpaceSerializer(model, context={'request': request})
 
             return Response(new_serializer.data, status=status.HTTP_201_CREATED)
 
