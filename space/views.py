@@ -1,6 +1,8 @@
+from datetime import datetime
 from ipware import get_client_ip
 
 from django.db.models import Max
+from django.db.models.functions import Coalesce
 
 from rest_framework.response import Response
 from rest_framework import generics, mixins, status, permissions
@@ -135,8 +137,10 @@ class ListSpaceView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retri
                     query = Space.objects.filter(id__in=sub_query).order_by('-moderator__datetime', 'id')
 
             elif sort == 'trending':
-                sub_query = Space.objects.order_by('id', '-message__datetime').distinct('id') # you can't use distinct with order_by hence the hack
-                query = Space.objects.filter(id__in=sub_query).order_by('-message__datetime', '-id')
+                # sub_query = Space.objects.order_by('id', '-message__datetime').distinct('id') # you can't use distinct with order_by hence the hack
+                # query = Space.objects.filter(id__in=sub_query).annotate(latest=Max('message__datetime')).order_by('latest', 'id')
+                query = Space.objects.annotate(latest=Max(Coalesce('message__datetime', datetime.min))).order_by('-latest', 'id')
+                print("Query: ", query)
 
             else:
                 query = Space.objects.all().order_by('-created_datetime', 'id')
