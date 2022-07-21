@@ -1,7 +1,7 @@
-from genericpath import exists
 from ipware import get_client_ip
 
-from rest_framework.views import APIView
+from django.db.models import Max
+
 from rest_framework.response import Response
 from rest_framework import generics, mixins, status, permissions
 
@@ -89,7 +89,7 @@ class ListSpaceView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retri
             if user:
                 int(user)
         
-        except ValueError:
+        except (ValueError, TypeError):
             return False
 
         return True
@@ -120,13 +120,15 @@ class ListSpaceView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retri
                 try:
                     int(user)
                 
-                except ValueError:
+                except (ValueError, TypeError):
 
                     return Response({'bad request': 'invalid user'}, status=status.HTTP_400_BAD_REQUEST)
 
                 if sort == 'recent':
-                    sub_query = Space.objects.filter(message__user=user).order_by('id', '-message__datetime').distinct('id')
-                    query = Space.objects.filter(id__in=sub_query).order_by('-message__datetime', 'id')
+                    sub_query = Space.objects.filter(message__user=user).order_by('-id').distinct('id')
+                    query = Space.objects.filter(id__in=sub_query).annotate(latest=Max('message__datetime')).order_by('-latest', '-id')
+                    # print("User: ", sub_query)
+                    print("User2: ", query)
 
                 elif sort == 'moderating':
                     sub_query = Space.objects.filter(moderator__user=user).order_by('id', '-moderator__datetime').distinct('id')
@@ -137,7 +139,7 @@ class ListSpaceView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retri
                 query = Space.objects.filter(id__in=sub_query).order_by('-message__datetime', '-id')
 
             else:
-                query = Space.objects.all().order_by('-created_datetime')
+                query = Space.objects.all().order_by('-created_datetime', 'id')
 
             paginated_queryset = self.paginate_queryset(query)
             serializer = self.get_serializer(paginated_queryset, context={'request': request}, many=True)
