@@ -46,7 +46,6 @@ class SpaceSerializer(DynamicFieldsModelSerializer):
         """
             returns if the user is staff 
         """
-        print("USER: ", self.context['request'].user)
         return User.objects.filter(id=self.context['request'].user.id, is_staff=True).exists()
 
     def get_mods(self, obj):

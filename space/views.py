@@ -30,8 +30,6 @@ class CreateSpaceView(generics.GenericAPIView, mixins.CreateModelMixin):
 
         ip_address, is_routable = get_client_ip(request)
 
-        print("FILE: ", request.data)
-
         serializer = self.get_serializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
 
@@ -105,9 +103,9 @@ class ListSpaceView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retri
             return Response({'invalid paramaters': 'invalid query parameters'}, status=status.HTTP_400_BAD_REQUEST)
 
         user = request.query_params.get('user')
-        list_type = request.query_params.get('sort')
+        sort = request.query_params.get('sort')
 
-        if list_type is None:
+        if sort is None:
             query = self.get_queryset().order_by('-message__datetime')
             paginated_queryset = self.paginate_queryset(query)
             serializer = self.get_serializer(paginated_queryset, context={'request': request}, many=True)
@@ -116,18 +114,18 @@ class ListSpaceView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retri
             # return Response(serializer.data, status=status.HTTP_200_OK)
 
         else:
-            
-            if list_type == 'recent':
+           
+            if sort == 'recent':
                 sub_query = Space.objects.filter(message__user=user).order_by('id', '-message__datetime').distinct('id')
-                query = Space.objects.filter(id__in=sub_query).order_by('-message__datetime')
+                query = Space.objects.filter(id__in=sub_query).order_by('-message__datetime', 'id')
 
-            elif list_type == 'moderating':
+            elif sort == 'moderating':
                 sub_query = Space.objects.filter(moderator__user=user).order_by('id', '-moderator__datetime').distinct('id')
-                query = Space.objects.filter(id__in=sub_query).order_by('-moderator__datetime')
+                query = Space.objects.filter(id__in=sub_query).order_by('-moderator__datetime', 'id')
 
-            elif list_type == 'trending':
+            elif sort == 'trending':
                 sub_query = Space.objects.order_by('id', '-message__datetime').distinct('id') # you can't use distinct with order_by hence the hack
-                query = Space.objects.filter(id__in=sub_query).order_by('-message__datetime')
+                query = Space.objects.filter(id__in=sub_query).order_by('-message__datetime', '-id')
 
             else:
                 query = Space.objects.all().order_by('-created_datetime')
@@ -136,8 +134,8 @@ class ListSpaceView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retri
             serializer = self.get_serializer(paginated_queryset, context={'request': request}, many=True)
 
             return self.get_paginated_response(serializer.data)
+            # return self.list(request, *args, **kwargs)
 
-        # return self.list(request, *args, **kwargs)
 
 
 class AssignModView(generics.GenericAPIView, mixins.CreateModelMixin):
