@@ -114,14 +114,23 @@ class ListSpaceView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retri
             # return Response(serializer.data, status=status.HTTP_200_OK)
 
         else:
-           
-            if sort == 'recent':
-                sub_query = Space.objects.filter(message__user=user).order_by('id', '-message__datetime').distinct('id')
-                query = Space.objects.filter(id__in=sub_query).order_by('-message__datetime', 'id')
+            
+            if sort in ['recent', 'moderating']:
 
-            elif sort == 'moderating':
-                sub_query = Space.objects.filter(moderator__user=user).order_by('id', '-moderator__datetime').distinct('id')
-                query = Space.objects.filter(id__in=sub_query).order_by('-moderator__datetime', 'id')
+                try:
+                    int(user)
+                
+                except ValueError:
+
+                    return Response({'bad request': 'invalid user'}, status=status.HTTP_400_BAD_REQUEST)
+
+                if sort == 'recent':
+                    sub_query = Space.objects.filter(message__user=user).order_by('id', '-message__datetime').distinct('id')
+                    query = Space.objects.filter(id__in=sub_query).order_by('-message__datetime', 'id')
+
+                elif sort == 'moderating':
+                    sub_query = Space.objects.filter(moderator__user=user).order_by('id', '-moderator__datetime').distinct('id')
+                    query = Space.objects.filter(id__in=sub_query).order_by('-moderator__datetime', 'id')
 
             elif sort == 'trending':
                 sub_query = Space.objects.order_by('id', '-message__datetime').distinct('id') # you can't use distinct with order_by hence the hack
