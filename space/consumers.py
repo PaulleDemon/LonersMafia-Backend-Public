@@ -13,7 +13,7 @@ from asgiref.sync import async_to_sync
 # from django.dispatch import receiver
 # from django.db.models.signals import post_save
 
-from .models import Message,  Space, BanUserFromSpace
+from .models import Message, Space, BanUserFromSpace
 from user.models import BlacklistedIp
 # from .serializers import MessagesSerializer
 
@@ -109,6 +109,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if not await self.user_allowed():
             await self.close(3401)
             return 
+
+        if not await self.space_exists(self.room_name):
+            await self.close(3404) # space not found
+            # self.send(text_data="Space doesn't exist", close=1008)
+            return
 
         text_data_json = json.loads(text_data)
         

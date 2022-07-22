@@ -1,4 +1,5 @@
 from datetime import datetime
+from email import message
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
@@ -107,26 +108,34 @@ class Message(models.Model):
         verbose_name_plural = 'messages'
     
     def __str__(self):
-        return self.message[:50]
+        return self.message[:50] if self.message else ''
 
 
 class Reaction(models.Model):
 
     """
         reaction to certain message
-    """
+    """ 
 
-    class ReactionTypes(models.IntegerChoices):
-        
-        ROCKET = 0, 'rocket'
-    
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     message = models.ForeignKey(Message, on_delete=models.CASCADE)
-
-    reaction = models.PositiveSmallIntegerField(choices=ReactionTypes.choices, default=ReactionTypes.ROCKET)  
+    reaction = models.CharField(max_length=10, null=False, blank=False)
 
     def __str__(self):
         return f'{self.user.name} reacted with {self.reaction}'
+
+    
+    def clean(self) -> None:
+
+        allowed_reactions = ['🚀', '😭', '🤣', '👎']
+
+        if self.reaction not in allowed_reactions:
+            raise ValidationError(message=f'This reaction is not allowed yet, allowed reactions are {",".join(allowed_reactions)}')
+
+        if Reaction.objects.filter(user=self.user, message=self.message, reaction=self.reaction).exists():
+            raise ValidationError(message='User has already reacted with this emoji', code=status.HTTP_400_BAD_REQUEST)
+
+        return super().clean()
 
 
 class BanUserFromSpace(models.Model):

@@ -78,7 +78,10 @@ class MessageAdmin(admin.ModelAdmin):
 @admin.register(Reaction)
 class ReactionAdmin(admin.ModelAdmin):
     
-    list_display = ['id', 'reaction', 'user']
+    list_display = ['id', 'reaction', 'user', 'message', 'get_space']
 
     search_fields = ['user__name', 'reaction', 'message__message']
 
+    @admin.display(description='space')
+    def get_space(self, obj):
+        return obj.message.space

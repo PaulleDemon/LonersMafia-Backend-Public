@@ -9,6 +9,9 @@ from user.models import User
 from user.serializers import UserSerializer
 
 
+REACTIONS = ['🚀', '😭', '🤣', '👎']
+
+
 class SpaceSerializer(DynamicFieldsModelSerializer):
 
     is_mod = serializers.SerializerMethodField()
@@ -88,7 +91,7 @@ class MessageSerializer(serializers.ModelSerializer):
 
     media_url = serializers.SerializerMethodField()
     # reactions_count = serializers.SerializerMethodField()
-    # reactions = serializers.SerializerMethodField()
+    reactions = serializers.SerializerMethodField()
 
     class Meta:
 
@@ -131,19 +134,24 @@ class MessageSerializer(serializers.ModelSerializer):
         return User.objects.filter(id=obj.user.id, is_staff=True).exists()
 
 
-    # def get_reactions(self, obj):
+    def get_reactions(self, obj):
 
-    #     """
-    #         gets the list of reaction by the user
-    #     """
-    #     return ReactionSerializer(Reaction.objects.filter()).data
+        """
+            gets the list of reaction by the user
+        """
 
-    def create(self, validated_data):
-        validated_data['user'] = self.context['request'].user
-        print("Suprise: ", validated_data)
-        return super().create(validated_data)
+        request = self.context.get('request')
+        user = request.user.id if request else self.context.get('user')
 
-class ReactionSerializer(serializers.ModelSerializer):
+        instance = models.Reaction.objects.filter(message=obj).distinct('reaction')
+        return ReactionSerializer(instance=instance, context={'user': user}, 
+                                        many=True, fields=('reaction', 'is_reacted', 'reaction_count')).data
+    
+
+class ReactionSerializer(DynamicFieldsModelSerializer):
+
+    is_reacted = serializers.SerializerMethodField()
+    reaction_count = serializers.SerializerMethodField()
 
     class Meta:
 
@@ -152,9 +160,23 @@ class ReactionSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
 
+        if self.reaction not in REACTIONS:
+            raise ValidationError(message=f'This reaction is not allowed yet, allowed reactions are {",".join(allowed_reactions)}')
+
+
         if models.Reaction.objects.filter(user=self.context['request'].user, 
                             message=attrs['id'], reaction=attrs['reaction']).exists():
             
             raise ValidationError('The user has already reacted to this message', code=status.HTTP_400_BAD_REQUEST)
 
         return super().validate(attrs)
+
+    def get_is_reacted(self, obj):
+
+        request = self.context.get('request')
+        user = request.user.id if request else self.context.get('user')
+
+        return models.Reaction.objects.filter(user=user, message=obj.message, reaction=obj.reaction).exists()
+    
+    def get_reaction_count(self, obj):
+        return models.Reaction.objects.filter(message=obj.message, reaction=obj.reaction).count()

@@ -130,7 +130,6 @@ class ListSpaceView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retri
                     sub_query = Space.objects.filter(message__user=user).order_by('-id').distinct('id')
                     query = Space.objects.filter(id__in=sub_query).annotate(latest=Max('message__datetime')).order_by('-latest', '-id')
                     # print("User: ", sub_query)
-                    print("User2: ", query)
 
                 elif sort == 'moderating':
                     sub_query = Space.objects.filter(moderator__user=user).order_by('id', '-moderator__datetime').distinct('id')
@@ -140,7 +139,6 @@ class ListSpaceView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retri
                 # sub_query = Space.objects.order_by('id', '-message__datetime').distinct('id') # you can't use distinct with order_by hence the hack
                 # query = Space.objects.filter(id__in=sub_query).annotate(latest=Max('message__datetime')).order_by('latest', 'id')
                 query = Space.objects.annotate(latest=Max(Coalesce('message__datetime', datetime.min))).order_by('-latest', 'id')
-                print("Query: ", query)
 
             else:
                 query = Space.objects.all().order_by('-created_datetime', 'id')
