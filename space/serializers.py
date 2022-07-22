@@ -1,3 +1,6 @@
+from collections import OrderedDict
+from email import message
+from multiprocessing import context
 from django.conf import settings
 from django.forms import ValidationError
 from rest_framework import serializers, status
@@ -143,10 +146,24 @@ class MessageSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         user = request.user.id if request else self.context.get('user')
 
-        instance = models.Reaction.objects.filter(message=obj).distinct('reaction')
-        return ReactionSerializer(instance=instance, context={'user': user}, 
-                                        many=True, fields=('reaction', 'is_reacted', 'reaction_count')).data
-    
+        # instance = models.Reaction.objects.filter(message=obj, reaction__in=REACTIONS).distinct('reaction')
+
+        serializer = []
+
+        for x in REACTIONS:
+            instance = models.Reaction.objects.filter(message=obj, reaction=x).distinct('reaction') 
+
+            if instance.exists():
+                serializer += ReactionSerializer(instance=instance, context={'user': user}, 
+                                many=True, fields=('id', 'reaction', 'is_reacted', 'reaction_count')).data
+
+            else: 
+                # if the reaction doens't exist yet in the database the return this default
+                serializer += [OrderedDict({'id': None, 'is_reacted': False, 'reaction_count': 0, 'reaction': x})]
+
+        # return ReactionSerializer(instance=instance, context={'user': user},
+        #                                 many=True, fields=('reaction', 'is_reacted', 'reaction_count')).data
+        return serializer
 
 class ReactionSerializer(DynamicFieldsModelSerializer):
 
@@ -160,12 +177,12 @@ class ReactionSerializer(DynamicFieldsModelSerializer):
 
     def validate(self, attrs):
 
-        if self.reaction not in REACTIONS:
-            raise ValidationError(message=f'This reaction is not allowed yet, allowed reactions are {",".join(allowed_reactions)}')
+        if attrs['reaction'] not in REACTIONS:
+            raise ValidationError(message=f'This reaction is not allowed yet, allowed reactions are {",".join(REACTIONS)}')
 
 
         if models.Reaction.objects.filter(user=self.context['request'].user, 
-                            message=attrs['id'], reaction=attrs['reaction']).exists():
+                            message=attrs['message'], reaction=attrs['reaction']).exists():
             
             raise ValidationError('The user has already reacted to this message', code=status.HTTP_400_BAD_REQUEST)
 

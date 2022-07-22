@@ -278,7 +278,6 @@ class MessageReactionCreateView(generics.GenericAPIView, mixins.CreateModelMixin
     queryset = Reaction.objects.all()
     serializer_class = ReactionSerializer
 
-
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
 
@@ -287,6 +286,7 @@ class MessageReactionDeleteView(generics.GenericAPIView, mixins.DestroyModelMixi
 
     queryset = Reaction.objects.all()
     serializer_class = ReactionSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     lookup_field = 'id'
 
