@@ -64,7 +64,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     ip_address = models.GenericIPAddressField(null=True, blank=True) # the ip is stored to prevent attacks on server
     email = models.EmailField(unique=True, null=True, blank=True) # used only for staff/admin users
 
-    tag_line = models.CharField(max_length=50, null=True, blank=True)
+    tag_line = models.CharField(max_length=75, null=True, blank=True)
 
     objects = CustomUserManager()
     USERNAME_FIELD = 'email' # emails only for admins and staffs
