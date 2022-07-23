@@ -2,6 +2,7 @@ from datetime import datetime
 from ipware import get_client_ip
 
 from django.db.models import Max
+from django.shortcuts import get_object_or_404
 from django.db.models.functions import Coalesce
 
 from rest_framework.response import Response
@@ -176,12 +177,12 @@ class MessageListView(generics.GenericAPIView, mixins.ListModelMixin):
     ordering = ['-datetime']
 
     def get_queryset(self):
-        return Message.objects.filter(space__name=self.kwargs['space']).order_by('-datetime')
+        return Message.objects.filter(space=self.kwargs['space']).order_by('-datetime')
 
     def get(self, request, *args, **kwargs):
         
-        if not Space.objects.filter(name=kwargs.get('space')).exists():
-            return Response({'doesn\'t exist': 'This space doesn\'t exist'}, status=status.HTTP_404_NOT_FOUND)
+        # if not Space.objects.filter(name=kwargs.get('space')).exists():
+        #     return Response({'doesn\'t exist': 'This space doesn\'t exist'}, status=status.HTTP_404_NOT_FOUND)
 
         return self.list(request, *args, **kwargs)
 
@@ -288,11 +289,23 @@ class MessageReactionDeleteView(generics.GenericAPIView, mixins.DestroyModelMixi
     serializer_class = ReactionSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    lookup_field = 'id'
+    lookup_fields = ['message', 'reaction']
+
+    def get_object(self):
+        queryset = self.get_queryset()             # Get the base queryset
+        queryset = self.filter_queryset(queryset)  # Apply any filter backends
+        filter = {}
+        for field in self.lookup_fields:
+            try:                                  # Get the result with one or more fields.
+                filter[field] = self.kwargs[field]
+            except Exception:
+                pass
+        return get_object_or_404(queryset, **filter)  # Lookup the object
+
+    def get_queryset(self):
+
+        return Reaction.objects.filter(reaction=self.kwargs['reaction'], message=self.kwargs['message'], user=self.request.user)
 
     def delete(self, request, *args, **kwargs):
 
-        if Reaction.objects.filter(id=kwargs['id'], user=request.user.id).exists():
-            return self.delete(request, *args, **kwargs)
-
-        return Response({'forbidden': 'you are forbidden'}, status=status.HTTP_403_FORBIDDEN)
+        return self.destroy(request, *args, **kwargs)
