@@ -181,7 +181,7 @@ class ReactionSerializer(DynamicFieldsModelSerializer):
             raise ValidationError(message=f'This reaction is not allowed yet, allowed reactions are {",".join(REACTIONS)}')
 
 
-        if models.Reaction.objects.filter(user=self.context['request'].user, 
+        if models.Reaction.objects.filter(user=self.context['request'].user.id, 
                             message=attrs['message'], reaction=attrs['reaction']).exists():
             
             raise ValidationError('The user has already reacted to this message', code=status.HTTP_400_BAD_REQUEST)

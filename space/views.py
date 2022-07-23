@@ -199,12 +199,11 @@ class MessageCreateView(generics.GenericAPIView, mixins.CreateModelMixin):
     # lookup_field = 'space'
 
     def post(self, request, *args, **kwargs):
-        
+
         serializer = self.get_serializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
 
-
-        msg = serializer.save()
+        msg = Message(**serializer.validated_data)
         msg.user = self.request.user
         msg.save()
 
@@ -275,7 +274,7 @@ class ModOptionsView(generics.GenericAPIView, mixins.CreateModelMixin):
 class MessageReactionCreateView(generics.GenericAPIView, mixins.CreateModelMixin):
 
 
-    permission_classes = [OnlyRegisteredPermission]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, OnlyRegisteredPermission]
     queryset = Reaction.objects.all()
     serializer_class = ReactionSerializer
 
