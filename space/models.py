@@ -1,5 +1,4 @@
 from datetime import datetime
-from email import message
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
@@ -16,6 +15,7 @@ from utils.customfields import ContentTypeRestrictedFileField
 space_name_validator = RegexValidator(regex='^[a-zA-Z][a-zA-Z0-9_-]+$', message='can contain only alpha numeric and -, _ and must begin with alphabet', code=status.HTTP_400_BAD_REQUEST)
 color_validator = RegexValidator(regex='^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$', message='not a valid hex color code', code=status.HTTP_400_BAD_REQUEST)
 
+
 class Space(models.Model):
     """
         Each user can create their own space and start a chat. Loner is a chat space for loners
@@ -30,7 +30,7 @@ class Space(models.Model):
     about = models.CharField(max_length=350, null=True, blank=True)
     tag_line = models.CharField(max_length=75, default="", null=True, blank=True)
 
-    color_theme = models.CharField(max_length=16, validators=[color_validator], default="#f5d1e0", null=False, blank=False) 
+    color_theme = models.CharField(max_length=16, validators=[color_validator], default="#00FFFFFF", null=False, blank=False) 
     background_image = ContentTypeRestrictedFileField(upload_to='space_background/', content_types=['image/png', 'image/jpeg', 'image/gif', 'image/svg+xml'],
                                                         max_upload_size=5242880, null=True, blank=True)
 
@@ -80,7 +80,7 @@ class Rule(models.Model):
 class Moderator(models.Model):
 
     """
-        Moderators are previlaged users that can delete other's messages and ban users from a space
+        Moderators are privileged users that can delete other's messages and ban users from a space
     """
 
     space = models.ForeignKey(Space, on_delete=models.CASCADE)

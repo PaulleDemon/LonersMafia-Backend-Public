@@ -43,7 +43,7 @@ class CreateSpaceView(generics.GenericAPIView, mixins.CreateModelMixin):
 
             rules = json.loads(data.pop("rules")[0])# the list is recieved from front-end in the form of json array
 
-            rules = [rule for rule in rules if rules != ''] # remove empty strings from rules
+            rules = [rule for rule in rules if rule != ''] # remove empty strings from rules
 
             data._mutable = _mutable
 
@@ -105,12 +105,14 @@ class UpdateSpaceView(generics.GenericAPIView, mixins.UpdateModelMixin):
 
             rules = json.loads(data.pop("rules")[0])# the list is recieved from front-end in the form of json array
 
-            rules = [rule for rule in rules if rules != ''] # remove empty strings from rules
+            rules = [rule for rule in rules if rule != ''] # remove empty strings from rules
 
             data._mutable = _mutable
 
         if rules:
             
+            print("RULES: ", rules)
+
             if len(rules) > 5:
                 return Response({'bad request': 'only 5 rules allowed'}, status=status.HTTP_400_BAD_REQUEST)
             
@@ -121,7 +123,8 @@ class UpdateSpaceView(generics.GenericAPIView, mixins.UpdateModelMixin):
                 rule_serializer.is_valid(raise_exception=True)
                 rule_serializer.save()
 
-        self.partial_update(request, *args, **kwargs)
+        return self.partial_update(request, *args, **kwargs)
+
 
 class ListSpaceView(generics.GenericAPIView, mixins.ListModelMixin, mixins.RetrieveModelMixin):
 
