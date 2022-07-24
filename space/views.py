@@ -12,7 +12,7 @@ from utils.permissions import AnyOneButBannedPermission, ModeratorPermission, On
 
 from user.models import User
 from .models import Moderator, Reaction, Space, Message, BanUserFromSpace
-from .serializers import ModeratorSerializer, ReactionSerializer, SpaceSerializer, MessageSerializer
+from .serializers import ModeratorSerializer, ReactionSerializer, RuleSerializer, SpaceSerializer, MessageSerializer
 
 
 
@@ -32,6 +32,9 @@ class CreateSpaceView(generics.GenericAPIView, mixins.CreateModelMixin):
         # created = self.create(request, *args, **kwargs)
 
         ip_address, is_routable = get_client_ip(request)
+
+        rules_serializer = RuleSerializer()
+        print("Request: ", request.data)
 
         serializer = self.get_serializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)

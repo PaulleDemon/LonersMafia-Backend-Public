@@ -6,7 +6,7 @@ from . import views
 urlpatterns = [
     
     path('create/', views.CreateSpaceView.as_view(), name='create-space'),
-    path('update/<int:id>/', views.UpdateSpaceView.as_view(), name='update-space'),
+    path('<int:id>/update/', views.UpdateSpaceView.as_view(), name='update-space'),
     path('list/', views.ListSpaceView.as_view(), name='list-space'),
     path('<str:name>/get/', views.ListSpaceView.as_view(), name='get-space'),
     

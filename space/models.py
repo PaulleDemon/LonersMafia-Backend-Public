@@ -66,7 +66,7 @@ class Rule(models.Model):
     """
 
     space = models.ForeignKey(Space, on_delete=models.CASCADE)
-    rule = models.CharField(max_length=250)
+    rule = models.CharField(max_length=100)
 
     class Meta:
 
