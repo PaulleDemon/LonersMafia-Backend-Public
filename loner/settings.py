@@ -135,6 +135,15 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 7 if DEBUG else 20,
     'DEFAULT_RENDERER_CLASSES': DEFAULT_RENDERER_CLASSES,
 
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '60/min',
+        'user': '100/min'
+    },
+
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
