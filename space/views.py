@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 from ipware import get_client_ip
 
@@ -11,7 +12,7 @@ from rest_framework import generics, mixins, status, permissions
 from utils.permissions import AnyOneButBannedPermission, ModeratorPermission, OnlyRegisteredPermission, IsStaffPermission
 
 from user.models import User
-from .models import Moderator, Reaction, Space, Message, BanUserFromSpace
+from .models import Moderator, Reaction, Rule, Space, Message, BanUserFromSpace
 from .serializers import ModeratorSerializer, ReactionSerializer, RuleSerializer, SpaceSerializer, MessageSerializer
 
 
@@ -33,8 +34,20 @@ class CreateSpaceView(generics.GenericAPIView, mixins.CreateModelMixin):
 
         ip_address, is_routable = get_client_ip(request)
 
-        rules_serializer = RuleSerializer()
-        print("Request: ", request.data)
+        rules = [] 
+        if request.data.get("rules"):
+            # https://stackoverflow.com/questions/44717442/this-querydict-instance-is-immutable
+            data = request.data
+            _mutable = data._mutable
+            data._mutable = True
+
+            rules = json.loads(data.pop("rules")[0])# the list is recieved from front-end in the form of json array
+
+            rules = [rule for rule in rules if rules != ''] # remove empty strings from rules
+
+            data._mutable = _mutable
+
+
 
         serializer = self.get_serializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
@@ -45,8 +58,20 @@ class CreateSpaceView(generics.GenericAPIView, mixins.CreateModelMixin):
         
         if user.exists():
             model.created_by = user.first()
-            model.save()
-            
+            try:
+                model.save()
+                
+                if len(rules) > 5:
+                    return Response({'bad request': 'only 5 rules allowed'}, status=status.HTTP_400_BAD_REQUEST)
+
+                for rule in rules: 
+                    rule_serializer = RuleSerializer(data={'space': model.id, 'rule': rule})
+                    rule_serializer.is_valid(raise_exception=True)
+                    rule_serializer.save()
+
+            except (Exception) as e:
+                pass
+
             new_serializer = SpaceSerializer(model, context={'request': request})
 
             return Response(new_serializer.data, status=status.HTTP_201_CREATED)
@@ -63,7 +88,7 @@ class UpdateSpaceView(generics.GenericAPIView, mixins.UpdateModelMixin):
 
     queryset = Space.objects.all()
     serializer_class = SpaceSerializer
-    permission_classes = [ModeratorPermission]
+    permission_classes = [permissions.IsAuthenticated, ModeratorPermission]
     lookup_field = 'id'
 
     def put(self, request, *args, **kwargs):
@@ -71,8 +96,32 @@ class UpdateSpaceView(generics.GenericAPIView, mixins.UpdateModelMixin):
         if 'name' in request.data:
             return Response({'cannot update': 'you cannot update the name of the space'}, status=status.HTTP_400_BAD_REQUEST)
 
-        return self.partial_update(request, *args, **kwargs)
+        rules = [] 
+        if request.data.get("rules"):
+            # https://stackoverflow.com/questions/44717442/this-querydict-instance-is-immutable
+            data = request.data
+            _mutable = data._mutable
+            data._mutable = True
 
+            rules = json.loads(data.pop("rules")[0])# the list is recieved from front-end in the form of json array
+
+            rules = [rule for rule in rules if rules != ''] # remove empty strings from rules
+
+            data._mutable = _mutable
+
+        if rules:
+            
+            if len(rules) > 5:
+                return Response({'bad request': 'only 5 rules allowed'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            Rule.objects.filter(space=kwargs['id']).delete()
+
+            for rule in rules: 
+                rule_serializer = RuleSerializer(data={'space': kwargs['id'], 'rule': rule})
+                rule_serializer.is_valid(raise_exception=True)
+                rule_serializer.save()
+
+        self.partial_update(request, *args, **kwargs)
 
 class ListSpaceView(generics.GenericAPIView, mixins.ListModelMixin, mixins.RetrieveModelMixin):
 
