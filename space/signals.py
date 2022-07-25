@@ -58,3 +58,18 @@ def handle_message(sender, instance, created, *args, **kwargs):
              'sender_data': sender_serializer.data, 
             }
         )
+
+
+@receiver(post_delete, sender=models.Message)
+def handle_delete_message(sender, instance, *args, **kwargs):
+
+    channel_layer = get_channel_layer()
+        
+    sender_serializer = MessageSerializer(instance, context={'user': instance.user.id})
+
+    async_to_sync(channel_layer.group_send)(
+        f'chat_{instance.mafia.name}',
+        {'type': 'send_saved', 
+            'sender_data': {'delete': instance.id}, 
+        }
+    )

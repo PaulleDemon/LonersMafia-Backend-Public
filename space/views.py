@@ -93,8 +93,6 @@ class UpdateSpaceView(generics.GenericAPIView, mixins.UpdateModelMixin):
 
     def put(self, request, *args, **kwargs):
 
-        print("request : ", request.data)
-
         if 'name' in request.data:
             return Response({'cannot update': 'you cannot update the name of the mafia'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -113,17 +111,16 @@ class UpdateSpaceView(generics.GenericAPIView, mixins.UpdateModelMixin):
 
         if rules:
             
-            print("RULES: ", rules)
-
             if len(rules) > 5:
                 return Response({'bad request': 'only 5 rules allowed'}, status=status.HTTP_400_BAD_REQUEST)
             
             Rule.objects.filter(mafia=kwargs['id']).delete()
-
+            
             for rule in rules: 
-                rule_serializer = RuleSerializer(data={'maifa': kwargs['id'], 'rule': rule})
+                rule_serializer = RuleSerializer(data={'mafia': kwargs['id'], 'rule': rule})
                 rule_serializer.is_valid(raise_exception=True)
                 rule_serializer.save()
+
 
         return self.partial_update(request, *args, **kwargs)
 

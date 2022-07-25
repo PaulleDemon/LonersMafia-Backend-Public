@@ -1,5 +1,5 @@
-from collections import OrderedDict
 from django.conf import settings
+from collections import OrderedDict
 from django.forms import ValidationError
 from rest_framework import serializers, status
 
@@ -42,6 +42,12 @@ class MafiaSerializer(DynamicFieldsModelSerializer):
             'icon': {
                 'error_messages': {
                     'required': 'mafia\'s icon is required',
+                },
+            },
+            
+            'background_image': {
+                'error_messages': {
+                    'required': 'mafia\'s background image is required',
                 },
             },
         }

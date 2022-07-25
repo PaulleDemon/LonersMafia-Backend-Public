@@ -13,7 +13,7 @@ from utils.customfields import ContentTypeRestrictedFileField
 # Create your models here.
 
 mafia_name_validator = RegexValidator(regex='^[a-zA-Z][a-zA-Z0-9_-]+$', message='can contain only alpha numeric and -, _ and must begin with alphabet', code=status.HTTP_400_BAD_REQUEST)
-color_validator = RegexValidator(regex='^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$', message='not a valid hex color code', code=status.HTTP_400_BAD_REQUEST)
+color_validator = RegexValidator(regex='^#(?:[0-9a-fA-F]{3,4}){1,2}$', message='not a valid hex color code', code=status.HTTP_400_BAD_REQUEST)
 
 
 class Mafia(models.Model):

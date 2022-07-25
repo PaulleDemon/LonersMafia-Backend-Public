@@ -171,7 +171,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def send_saved(self, event):
         """ sends the saved message from database. """
-        # print("Sending message: ", event['sender_data'])
+        print("Sending message: ", event['sender_data'])
         await self.send(
             text_data=json.dumps(event['sender_data'])
         )
