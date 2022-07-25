@@ -26,7 +26,24 @@ class MafiaSerializer(DynamicFieldsModelSerializer):
         model = models.Mafia
         exclude = ('created_by', 'created_datetime')
         extra_kwargs = {
-            'created_by': {'read_only': True}
+            'created_by': {'read_only': True},
+
+            'name': {
+                'error_messages': {
+                    'required': 'mafia\'s name is required',
+                },
+            },
+            'color_theme': {
+                'error_messages': {
+                    'required': 'mafia\'s color theme is required',
+                },
+            },
+            
+            'icon': {
+                'error_messages': {
+                    'required': 'mafia\'s icon is required',
+                },
+            },
         }
 
     def validate(self, attrs):
@@ -72,6 +89,18 @@ class RuleSerializer(serializers.ModelSerializer):
 
         model = models.Rule
         fields = '__all__'
+        extra_kwargs = {
+            'rule': {
+                'error_messages': {
+                    'required': 'rule cannot be empty'
+                }
+            },
+            'maifa': {
+                'error_messages': {
+                    'required': 'mafia for rule is required'
+                }
+            }
+        }
 
 
 class ModeratorSerializer(serializers.ModelSerializer):

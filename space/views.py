@@ -77,7 +77,7 @@ class CreateSpaceView(generics.GenericAPIView, mixins.CreateModelMixin):
             return Response(new_serializer.data, status=status.HTTP_201_CREATED)
 
         else:
-            return Response({'unregistered': 'you need to register before creating a space'}, status=status.HTTP_403_FORBIDDEN)
+            return Response({'unregistered': 'you need to register before creating a mafia'}, status=status.HTTP_403_FORBIDDEN)
 
 
 class UpdateSpaceView(generics.GenericAPIView, mixins.UpdateModelMixin):
@@ -93,8 +93,10 @@ class UpdateSpaceView(generics.GenericAPIView, mixins.UpdateModelMixin):
 
     def put(self, request, *args, **kwargs):
 
+        print("request : ", request.data)
+
         if 'name' in request.data:
-            return Response({'cannot update': 'you cannot update the name of the space'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'cannot update': 'you cannot update the name of the mafia'}, status=status.HTTP_400_BAD_REQUEST)
 
         rules = [] 
         if request.data.get("rules"):
@@ -116,10 +118,10 @@ class UpdateSpaceView(generics.GenericAPIView, mixins.UpdateModelMixin):
             if len(rules) > 5:
                 return Response({'bad request': 'only 5 rules allowed'}, status=status.HTTP_400_BAD_REQUEST)
             
-            Rule.objects.filter(space=kwargs['id']).delete()
+            Rule.objects.filter(mafia=kwargs['id']).delete()
 
             for rule in rules: 
-                rule_serializer = RuleSerializer(data={'space': kwargs['id'], 'rule': rule})
+                rule_serializer = RuleSerializer(data={'maifa': kwargs['id'], 'rule': rule})
                 rule_serializer.is_valid(raise_exception=True)
                 rule_serializer.save()
 
@@ -129,7 +131,7 @@ class UpdateSpaceView(generics.GenericAPIView, mixins.UpdateModelMixin):
 class ListSpaceView(generics.GenericAPIView, mixins.ListModelMixin, mixins.RetrieveModelMixin):
 
     """
-        Lists or gets the spaces.
+        Lists or gets the mafia.
     """
     queryset = Mafia.objects.all()
     serializer_class = MafiaSerializer
@@ -221,18 +223,18 @@ class AssignModView(generics.GenericAPIView, mixins.CreateModelMixin):
 class MessageListView(generics.GenericAPIView, mixins.ListModelMixin):
 
     """
-        lists the messages in the space
+        lists the messages in the Mafia
     """
 
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
-    lookup_field = 'space'
+    lookup_field = 'mafia'
     permission_classes = [AnyOneButBannedPermission]
     ordering_fields = ['datetime']
     ordering = ['-datetime']
 
     def get_queryset(self):
-        return Message.objects.filter(space=self.kwargs['space']).order_by('-datetime')
+        return Message.objects.filter(mafia=self.kwargs['mafia']).order_by('-datetime')
 
     def get(self, request, *args, **kwargs):
         
@@ -284,7 +286,7 @@ class MessageDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
 
         if (message.first() and message.first().user != request.user and
                 request.user and not request.user.is_staff and  
-                Moderator.objects.filter(user__in=message.values('user'), space__in=message.values('space')).exists()):
+                Moderator.objects.filter(user__in=message.values('user'), mafia__in=message.values('mafia')).exists()):
             return Response({'forbidden': 'only staff can delete other moderators messaeges'}, status=status.HTTP_403_FORBIDDEN)
 
         return self.destroy(request, *args, **kwargs)
@@ -294,11 +296,11 @@ class MessageDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
 class ModOptionsView(generics.GenericAPIView, mixins.CreateModelMixin):
 
     """
-        query_param: deleteAll - set this to true if you want to delete all the messages of the user in the space
+        query_param: deleteAll - set this to true if you want to delete all the messages of the user in the mafia
 
         structure: {
             id: <- message id,
-            space: <- space,
+            mafia: <- mafia,
             user: <- user who sent that message
         }
     """
@@ -307,15 +309,15 @@ class ModOptionsView(generics.GenericAPIView, mixins.CreateModelMixin):
 
     def post(self, request, *args, **kwargs):
 
-        if 'user' not in request.data or 'space' not in request.data or 'id' not in request.data:
+        if 'user' not in request.data or 'mafia' not in request.data or 'id' not in request.data:
             return Response(data={'bad request': 'incorrect data'}, status=status.HTTP_400_BAD_REQUEST)
 
         msg_id = request.data.get('id')
         user = request.data.get('user')
-        space = request.data.get('space')
+        mafia = request.data.get('mafia')
 
         if request.query_params.get('deleteAll') == 'true':
-            Message.objects.filter(user=user, space=space).delete()
+            Message.objects.filter(user=user, mafia=mafia).delete()
 
         else:
             Message.objects.filter(id=msg_id).delete()
