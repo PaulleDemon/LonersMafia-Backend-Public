@@ -13,7 +13,7 @@ from user.serializers import UserSerializer
 REACTIONS = ['🚀', '😭', '🤣', '👎']
 
 
-class SpaceSerializer(DynamicFieldsModelSerializer):
+class MafiaSerializer(DynamicFieldsModelSerializer):
 
     is_mod = serializers.SerializerMethodField()
     is_staff = serializers.SerializerMethodField()
@@ -23,7 +23,7 @@ class SpaceSerializer(DynamicFieldsModelSerializer):
 
     class Meta:
 
-        model = models.Space
+        model = models.Mafia
         exclude = ('created_by', 'created_datetime')
         extra_kwargs = {
             'created_by': {'read_only': True}
@@ -42,9 +42,9 @@ class SpaceSerializer(DynamicFieldsModelSerializer):
 
     def get_rules(self, obj):
         """
-            gets the rules for the space
+            gets the rules for the mafia
         """
-        return RuleSerializer(models.Rule.objects.filter(space=obj), many=True).data
+        return RuleSerializer(models.Rule.objects.filter(mafia=obj), many=True).data
 
     def get_is_staff(self, obj):
         """
@@ -54,16 +54,16 @@ class SpaceSerializer(DynamicFieldsModelSerializer):
 
     def get_mods(self, obj):
         """
-            gets moderators of the space
+            gets moderators of the mafia
         """
-        return ModeratorSerializer(models.Moderator.objects.filter(space=obj), many=True).data
+        return ModeratorSerializer(models.Moderator.objects.filter(mafia=obj), many=True).data
 
     def get_is_mod(self, obj):
         """
             returns true if the user is a modertor
         """
 
-        return models.Moderator.objects.filter(space=obj, user=self.context['request'].user.id).exists()
+        return models.Moderator.objects.filter(mafia=obj, user=self.context['request'].user.id).exists()
 
 
 class RuleSerializer(serializers.ModelSerializer):
@@ -123,7 +123,7 @@ class MessageSerializer(serializers.ModelSerializer):
         # request = self.context.get('request')
         # user = request.user.id if request else self.context.get('user')
 
-        return models.Moderator.objects.filter(space=obj.space, user=obj.user).exists()
+        return models.Moderator.objects.filter(mafia=obj.mafia, user=obj.user).exists()
 
     def get_is_staff(self, obj):
         """

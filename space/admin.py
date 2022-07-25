@@ -3,7 +3,7 @@ from django.contrib import messages
 
 from user.models import BlacklistedIp
 
-from . models import Space, Message, Reaction, Rule, Moderator, BanUserFromSpace
+from . models import Mafia, Message, Reaction, Rule, Moderator, BanUserFromSpace
 # Register your models here.
 
 
@@ -14,8 +14,8 @@ class RulesInline(admin.StackedInline):
     model = Rule
 
 
-@admin.register(Space)
-class SpaceAdmin(admin.ModelAdmin):
+@admin.register(Mafia)
+class MafiaAdmin(admin.ModelAdmin):
 
     list_display = ['id', 'name', 'icon', 'created_datetime']
     list_filter = ['created_datetime']
@@ -25,28 +25,28 @@ class SpaceAdmin(admin.ModelAdmin):
     inlines = [RulesInline]
 
     @admin.action(description='delete and ban users')
-    def remove_space_ban_members(self, request, queryset):
+    def remove_mafia_ban_members(self, request, queryset):
         """
-            bans all the users who participated in the space and deletes the space
+            bans all the users who participated in the mafia and deletes the mafia
         """
 
         for x in queryset:
-            message = Message.objects.filter(space=x.id).distinct('user')
+            message = Message.objects.filter(mafia=x.id).distinct('user')
             
             for mss in message:
                 BlacklistedIp.objects.create(ip_address=mss.user.ip_address)
 
                 mss.user.delete() # deletes the user
 
-        Space.objects.filter(space=queryset).delete() # removes the space
+        Mafia.objects.filter(mafia=queryset).delete() # removes the mafia
 
         self.message_user(request, 'user was successfully blacklisted and ', messages.SUCCESS)
 
 @admin.register(Rule)
 class RulesAdmin(admin.ModelAdmin):
 
-    list_display = ['id', 'rule', 'space']
-    search_fileds = ['rule', 'space__name']
+    list_display = ['id', 'rule', 'mafia']
+    search_fileds = ['rule', 'mafia__name']
 
     def get_queryset(self, request):
         return super().get_queryset(request)
@@ -55,33 +55,33 @@ class RulesAdmin(admin.ModelAdmin):
 @admin.register(Moderator)
 class ModeratorAdmin(admin.ModelAdmin):
 
-    list_display = ['id', 'user', 'space']
-    search_fields = ['user__name', 'space__name']
+    list_display = ['id', 'user', 'mafia']
+    search_fields = ['user__name', 'mafia__name']
 
 
 @admin.register(BanUserFromSpace)
 class BannedUserFromSpaceAdmin(admin.ModelAdmin):
 
-    list_display = ['id', 'user', 'space']
-    search_fields = ['user__name', 'space__name']
+    list_display = ['id', 'user', 'mafia']
+    search_fields = ['user__name', 'mafia__name']
 
 
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
 
-    list_display = ['id', 'user', 'space']
+    list_display = ['id', 'user', 'mafia']
     ordering = ['-datetime']
 
-    search_fields = ['user__name', 'message', 'space__name']
+    search_fields = ['user__name', 'message', 'mafia__name']
 
 
 @admin.register(Reaction)
 class ReactionAdmin(admin.ModelAdmin):
     
-    list_display = ['id', 'reaction', 'user', 'message', 'get_space']
+    list_display = ['id', 'reaction', 'user', 'message', 'get_mafia']
 
     search_fields = ['user__name', 'reaction', 'message__message']
 
-    @admin.display(description='space')
-    def get_space(self, obj):
-        return obj.message.space
+    @admin.display(description='mafia')
+    def get_mafia(self, obj):
+        return obj.message.mafia

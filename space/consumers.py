@@ -13,7 +13,7 @@ from asgiref.sync import async_to_sync
 # from django.dispatch import receiver
 # from django.db.models.signals import post_save
 
-from .models import Message, Space, BanUserFromSpace
+from .models import Message, Mafia, BanUserFromSpace
 from user.models import BlacklistedIp
 # from .serializers import MessagesSerializer
 
@@ -22,8 +22,8 @@ User = get_user_model()
 
 # The websocket unreserveed codes ranges from 3000 -4999, below is the definition of what the code means
 
-# 3401 - user-banned from participating in the space
-# 3404 - space not found
+# 3401 - user-banned from participating in the mafia
+# 3404 - mafia not found
 
 class ChatConsumer(AsyncWebsocketConsumer):
     """ This receives connection to chat creates room"""
@@ -42,12 +42,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return
 
         try:
-            space = Space.objects.get(name=self.room_name)
+            mafia = Mafia.objects.get(name=self.room_name)
         
-        except Space.DoesNotExist:
+        except Mafia.DoesNotExist:
             return 
 
-        Message.objects.create(space=space, user=user, message=msg)
+        Message.objects.create(mafia=mafia, user=user, message=msg)
         
 
     @database_sync_to_async
@@ -56,17 +56,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
         try:
             ip_address = self.scope['client'][0]
             black_listed = BlacklistedIp.objects.filter(ip_address=ip_address).exists()
-            banned_from_space = BanUserFromSpace.objects.filter(user__ip_address=ip_address).exists()
-            return (not black_listed and not banned_from_space)
+            banned_from_mafia = BanUserFromSpace.objects.filter(user__ip_address=ip_address).exists()
+            return (not black_listed and not banned_from_mafia)
         
         except (KeyError, IndexError) as e:
             return False
 
     @database_sync_to_async
-    def space_exists(self, space):
-        """ checks if the space exists """
+    def mafia_exists(self, mafia):
+        """ checks if the mafia exists """
 
-        return Space.objects.filter(name=space).exists()
+        return Mafia.objects.filter(name=mafia).exists()
 
     async def connect(self):
 
@@ -77,9 +77,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         await self.accept()
 
-        if not await self.space_exists(self.room_name):
+        if not await self.mafia_exists(self.room_name):
         
-            await self.close(3404) # space not found
+            await self.close(3404) # mafia not found
             # self.send(text_data="Space doesn't exist", close=1008)
             return
 
@@ -110,8 +110,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.close(3401)
             return 
 
-        if not await self.space_exists(self.room_name):
-            await self.close(3404) # space not found
+        if not await self.mafia_exists(self.room_name):
+            await self.close(3404) # mafia not found
             # self.send(text_data="Space doesn't exist", close=1008)
             return
 

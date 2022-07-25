@@ -12,8 +12,8 @@ from rest_framework import generics, mixins, status, permissions
 from utils.permissions import AnyOneButBannedPermission, ModeratorPermission, OnlyRegisteredPermission, IsStaffPermission
 
 from user.models import User
-from .models import Moderator, Reaction, Rule, Space, Message, BanUserFromSpace
-from .serializers import ModeratorSerializer, ReactionSerializer, RuleSerializer, SpaceSerializer, MessageSerializer
+from .models import Moderator, Reaction, Rule, Mafia, Message, BanUserFromSpace
+from .serializers import ModeratorSerializer, ReactionSerializer, RuleSerializer, MafiaSerializer, MessageSerializer
 
 
 
@@ -21,11 +21,11 @@ from .serializers import ModeratorSerializer, ReactionSerializer, RuleSerializer
 class CreateSpaceView(generics.GenericAPIView, mixins.CreateModelMixin):
 
     """
-        registered users can create new space
+        registered users can create new mafia
     """
 
-    queryset = Space.objects.all()
-    serializer_class = SpaceSerializer
+    queryset = Mafia.objects.all()
+    serializer_class = MafiaSerializer
     permissions.IsAuthenticated
     permission_classes = [permissions.IsAuthenticated, AnyOneButBannedPermission, OnlyRegisteredPermission]
 
@@ -52,7 +52,7 @@ class CreateSpaceView(generics.GenericAPIView, mixins.CreateModelMixin):
         serializer = self.get_serializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
 
-        model = Space(**serializer.validated_data)
+        model = Mafia(**serializer.validated_data)
         
         user = User.objects.filter(ip_address=ip_address)
         
@@ -65,14 +65,14 @@ class CreateSpaceView(generics.GenericAPIView, mixins.CreateModelMixin):
                     return Response({'bad request': 'only 5 rules allowed'}, status=status.HTTP_400_BAD_REQUEST)
 
                 for rule in rules: 
-                    rule_serializer = RuleSerializer(data={'space': model.id, 'rule': rule})
+                    rule_serializer = RuleSerializer(data={'mafia': model.id, 'rule': rule})
                     rule_serializer.is_valid(raise_exception=True)
                     rule_serializer.save()
 
             except (Exception) as e:
                 pass
 
-            new_serializer = SpaceSerializer(model, context={'request': request})
+            new_serializer = MafiaSerializer(model, context={'request': request})
 
             return Response(new_serializer.data, status=status.HTTP_201_CREATED)
 
@@ -86,8 +86,8 @@ class UpdateSpaceView(generics.GenericAPIView, mixins.UpdateModelMixin):
         Allows moderators to update the icon, theme, tag line etc
     """
 
-    queryset = Space.objects.all()
-    serializer_class = SpaceSerializer
+    queryset = Mafia.objects.all()
+    serializer_class = MafiaSerializer
     permission_classes = [permissions.IsAuthenticated, ModeratorPermission]
     lookup_field = 'id'
 
@@ -131,8 +131,8 @@ class ListSpaceView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retri
     """
         Lists or gets the spaces.
     """
-    queryset = Space.objects.all()
-    serializer_class = SpaceSerializer
+    queryset = Mafia.objects.all()
+    serializer_class = MafiaSerializer
     permission_classes = [permissions.AllowAny]
     ordering = ['-created_datetime']
     lookup_field = 'name'
@@ -183,21 +183,21 @@ class ListSpaceView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retri
                     return Response({'bad request': 'invalid user'}, status=status.HTTP_400_BAD_REQUEST)
 
                 if sort == 'recent':
-                    sub_query = Space.objects.filter(message__user=user).order_by('-id').distinct('id')
-                    query = Space.objects.filter(id__in=sub_query).annotate(latest=Max('message__datetime')).order_by('-latest', '-id')
+                    sub_query = Mafia.objects.filter(message__user=user).order_by('-id').distinct('id')
+                    query = Mafia.objects.filter(id__in=sub_query).annotate(latest=Max('message__datetime')).order_by('-latest', '-id')
                     # print("User: ", sub_query)
 
                 elif sort == 'moderating':
-                    sub_query = Space.objects.filter(moderator__user=user).order_by('id', '-moderator__datetime').distinct('id')
-                    query = Space.objects.filter(id__in=sub_query).order_by('-moderator__datetime', 'id')
+                    sub_query = Mafia.objects.filter(moderator__user=user).order_by('id', '-moderator__datetime').distinct('id')
+                    query = Mafia.objects.filter(id__in=sub_query).order_by('-moderator__datetime', 'id')
 
             elif sort == 'trending':
                 # sub_query = Space.objects.order_by('id', '-message__datetime').distinct('id') # you can't use distinct with order_by hence the hack
                 # query = Space.objects.filter(id__in=sub_query).annotate(latest=Max('message__datetime')).order_by('latest', 'id')
-                query = Space.objects.annotate(latest=Max(Coalesce('message__datetime', datetime.min))).order_by('-latest', 'id')
+                query = Mafia.objects.annotate(latest=Max(Coalesce('message__datetime', datetime.min))).order_by('-latest', 'id')
 
             else:
-                query = Space.objects.all().order_by('-created_datetime', 'id')
+                query = Mafia.objects.all().order_by('-created_datetime', 'id')
 
             paginated_queryset = self.paginate_queryset(query)
             serializer = self.get_serializer(paginated_queryset, context={'request': request}, many=True)
