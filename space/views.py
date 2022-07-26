@@ -32,9 +32,13 @@ class CreateMafiaView(generics.GenericAPIView, mixins.CreateModelMixin):
     def post(self, request, *args, **kwargs):
         # created = self.create(request, *args, **kwargs)
 
+        if Mafia.objects.filter(name__iexact=request.data.get("name")).exists():
+            return Response({'mafia name': 'This mafia already exists'}, status=status.HTTP_400_BAD_REQUEST)
+
         ip_address, is_routable = get_client_ip(request)
 
         rules = [] 
+
         if request.data.get("rules"):
             # https://stackoverflow.com/questions/44717442/this-querydict-instance-is-immutable
             data = request.data
