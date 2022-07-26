@@ -18,7 +18,7 @@ from .serializers import ModeratorSerializer, ReactionSerializer, RuleSerializer
 
 
 # ------------------------------------- Space Views ---------------------------
-class CreateSpaceView(generics.GenericAPIView, mixins.CreateModelMixin):
+class CreateMafiaView(generics.GenericAPIView, mixins.CreateModelMixin):
 
     """
         registered users can create new mafia
@@ -80,7 +80,7 @@ class CreateSpaceView(generics.GenericAPIView, mixins.CreateModelMixin):
             return Response({'unregistered': 'you need to register before creating a mafia'}, status=status.HTTP_403_FORBIDDEN)
 
 
-class UpdateSpaceView(generics.GenericAPIView, mixins.UpdateModelMixin):
+class UpdateMafiaView(generics.GenericAPIView, mixins.UpdateModelMixin):
 
     """
         Allows moderators to update the icon, theme, tag line etc
@@ -125,7 +125,7 @@ class UpdateSpaceView(generics.GenericAPIView, mixins.UpdateModelMixin):
         return self.partial_update(request, *args, **kwargs)
 
 
-class ListSpaceView(generics.GenericAPIView, mixins.ListModelMixin, mixins.RetrieveModelMixin):
+class ListMafiaView(generics.GenericAPIView, mixins.ListModelMixin, mixins.RetrieveModelMixin):
 
     """
         Lists or gets the mafia.

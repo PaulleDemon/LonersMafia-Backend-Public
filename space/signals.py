@@ -65,8 +65,6 @@ def handle_delete_message(sender, instance, *args, **kwargs):
 
     channel_layer = get_channel_layer()
         
-    sender_serializer = MessageSerializer(instance, context={'user': instance.user.id})
-
     async_to_sync(channel_layer.group_send)(
         f'chat_{instance.mafia.name}',
         {'type': 'send_saved', 

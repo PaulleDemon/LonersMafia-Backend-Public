@@ -106,6 +106,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
          which will then save message in database. If it contains markread it will mark messages in 
          that room as read"""
 
+        print("Scope: ", self.scope)
         if not await self.user_allowed():
             await self.close(3401)
             return 
@@ -171,7 +172,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def send_saved(self, event):
         """ sends the saved message from database. """
-        print("Sending message: ", event['sender_data'])
+
         await self.send(
             text_data=json.dumps(event['sender_data'])
         )

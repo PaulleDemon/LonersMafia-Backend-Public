@@ -209,7 +209,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 465
 EMAIL_USE_TLS = True
 
-# DEFAULT_FROM_EMAIL = Address(display_name="Peck Space", addr_spec=EMAIL_HOST_USER)
+# DEFAULT_FROM_EMAIL = Address(display_name="loners mafia", addr_spec=EMAIL_HOST_USER)
 
 
 

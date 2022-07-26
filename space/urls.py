@@ -5,10 +5,10 @@ from . import views
 
 urlpatterns = [
     
-    path('create/', views.CreateSpaceView.as_view(), name='create-mafia'),
-    path('<int:id>/update/', views.UpdateSpaceView.as_view(), name='update-mafia'),
-    path('list/', views.ListSpaceView.as_view(), name='list-mafia'),
-    path('<str:name>/get/', views.ListSpaceView.as_view(), name='get-mafia'),
+    path('create/', views.CreateMafiaView.as_view(), name='create-mafia'),
+    path('<int:id>/update/', views.UpdateMafiaView.as_view(), name='update-mafia'),
+    path('list/', views.ListMafiaView.as_view(), name='list-mafia'),
+    path('<str:name>/get/', views.ListMafiaView.as_view(), name='get-mafia'),
     
     path('assign-mod/', views.AssignModView.as_view(), name='assign-mod'),
     path('delete-and-ban/', views.ModOptionsView.as_view(), name='delete-ban-user'),

@@ -56,11 +56,11 @@ class IsUsersObjectPermission(OnlyRegisteredPermission):
 
 
 class AnyOneButSpaceBanned(permissions.BasePermission):
-    """ users that are banned from space cannot message that space """
+    """ users that are banned from mafia cannot message that mafia """
 
     def has_object_permission(self, request, view, obj):
 
-        if (not BanUserFromSpace.objects.filter(user=request.user.id, space=obj.id)):
+        if (not BanUserFromSpace.objects.filter(user=request.user.id, mafia=obj.id)):
             return True
 
         raise exceptions.BannedFromSpace()
@@ -68,12 +68,12 @@ class AnyOneButSpaceBanned(permissions.BasePermission):
 
 class ModeratorPermission(permissions.BasePermission):
 
-    """ moderators of the space are given privilage to delete posts """
+    """ moderators of the mafia are given privilage to delete posts """
    
 
     def has_object_permission(self, request, view, obj):
         
-        if request.user.is_staff or Moderator.objects.filter(space=obj.id, user=request.user.id).exists():
+        if request.user.is_staff or Moderator.objects.filter(mafia=obj.id, user=request.user.id).exists():
             return True
 
         raise exceptions.Forbidden()

@@ -30,7 +30,7 @@ class Mafia(models.Model):
     about = models.CharField(max_length=350, null=True, blank=True)
     tag_line = models.CharField(max_length=75, default="", null=True, blank=True)
 
-    color_theme = models.CharField(max_length=16, validators=[color_validator], default="#00FFFFFF", null=False, blank=False) 
+    color_theme = models.CharField(max_length=16, validators=[color_validator], default="#ffffff00", null=False, blank=False) 
     background_image = ContentTypeRestrictedFileField(upload_to='mafia_background/', content_types=['image/png', 'image/jpeg', 'image/gif', 'image/svg+xml'],
                                                         max_upload_size=5242880, null=True, blank=True)
 
