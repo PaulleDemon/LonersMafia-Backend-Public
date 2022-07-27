@@ -138,7 +138,7 @@ class Reaction(models.Model):
         return super().clean()
 
 
-class BanUserFromSpace(models.Model):
+class BanUserFromMafia(models.Model):
 
     """
         This bans user from participating in a mafia

@@ -13,7 +13,7 @@ from asgiref.sync import async_to_sync
 # from django.dispatch import receiver
 # from django.db.models.signals import post_save
 
-from .models import Message, Mafia, BanUserFromSpace
+from .models import Message, Mafia, BanUserFromMafia
 from user.models import BlacklistedIp
 # from .serializers import MessagesSerializer
 
@@ -56,7 +56,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         try:
             ip_address = self.scope['client'][0]
             black_listed = BlacklistedIp.objects.filter(ip_address=ip_address).exists()
-            banned_from_mafia = BanUserFromSpace.objects.filter(user__ip_address=ip_address).exists()
+            banned_from_mafia = BanUserFromMafia.objects.filter(user__ip_address=ip_address).exists()
             return (not black_listed and not banned_from_mafia)
         
         except (KeyError, IndexError) as e:

@@ -4,7 +4,7 @@ from ipware import get_client_ip
 
 from . import exceptions
 
-from space.models import Moderator, BanUserFromSpace
+from space.models import Moderator, BanUserFromMafia
 from user.models import User, BlacklistedIp
 
 
@@ -60,7 +60,7 @@ class AnyOneButSpaceBanned(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
 
-        if (not BanUserFromSpace.objects.filter(user=request.user.id, mafia=obj.id)):
+        if (not BanUserFromMafia.objects.filter(user=request.user.id, mafia=obj.id)):
             return True
 
         raise exceptions.BannedFromSpace()

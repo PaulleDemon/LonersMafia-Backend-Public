@@ -12,7 +12,7 @@ from rest_framework import generics, mixins, status, permissions
 from utils.permissions import AnyOneButBannedPermission, ModeratorPermission, OnlyRegisteredPermission, IsStaffPermission
 
 from user.models import User
-from .models import Moderator, Reaction, Rule, Mafia, Message, BanUserFromSpace
+from .models import Moderator, Reaction, Rule, Mafia, Message, BanUserFromMafia
 from .serializers import ModeratorSerializer, ReactionSerializer, RuleSerializer, MafiaSerializer, MessageSerializer
 
 
@@ -325,7 +325,7 @@ class ModOptionsView(generics.GenericAPIView, mixins.CreateModelMixin):
         mafia = request.data.get('mafia')
 
         msg = Message.objects.filter(user=user, mafia=mafia)
-        BanUserFromSpace.objects.create(user=msg.last().user, mafia=msg.last().mafia)
+        BanUserFromMafia.objects.create(user=msg.last().user, mafia=msg.last().mafia)
 
         if request.query_params.get('deleteAll') == 'true':
             msg.delete()

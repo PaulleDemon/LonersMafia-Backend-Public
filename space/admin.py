@@ -3,7 +3,7 @@ from django.contrib import messages
 
 from user.models import BlacklistedIp
 
-from . models import Mafia, Message, Reaction, Rule, Moderator, BanUserFromSpace
+from . models import Mafia, Message, Reaction, Rule, Moderator, BanUserFromMafia
 # Register your models here.
 
 
@@ -59,7 +59,7 @@ class ModeratorAdmin(admin.ModelAdmin):
     search_fields = ['user__name', 'mafia__name']
 
 
-@admin.register(BanUserFromSpace)
+@admin.register(BanUserFromMafia)
 class BannedUserFromSpaceAdmin(admin.ModelAdmin):
 
     list_display = ['id', 'user', 'mafia']
