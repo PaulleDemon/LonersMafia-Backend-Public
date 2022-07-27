@@ -157,6 +157,8 @@ class ListMafiaView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retri
 
     def get(self, request, *args, **kwargs):
         
+        print("MEta: ", request.META)
+
         if kwargs.get('name'):
             return self.retrieve(request, *args, **kwargs)
 
@@ -276,7 +278,7 @@ class MessageDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
         Delete message
     """
 
-    permission_classes = [ModeratorPermission|IsStaffPermission]
+    permission_classes = [permissions.IsAuthenticated]
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
     lookup_field = 'id'
@@ -285,10 +287,13 @@ class MessageDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
 
         message = Message.objects.filter(id=kwargs['id'])
 
-        if (message.first() and message.first().user != request.user and
-                request.user and not request.user.is_staff and  
-                Moderator.objects.filter(user__in=message.values('user'), mafia__in=message.values('mafia')).exists()):
-            return Response({'forbidden': 'only staff can delete other moderators messaeges'}, status=status.HTTP_403_FORBIDDEN)
+        is_mod = Moderator.objects.filter(user__in=message.values('user'), mafia__in=message.values('mafia')).exists()
+
+        if (not message.exists()):
+            return Response({'doesn\'t exist': 'This message doesn\'t exist'}, status=status.HTTP_404_NOT_FOUND)
+
+        if (not is_mod or (message.first().user != request.user and not request.user.is_staff)):
+            return Response({'forbidden': 'only staff can delete other moderators messages'}, status=status.HTTP_403_FORBIDDEN)
 
         return self.destroy(request, *args, **kwargs)
 
@@ -306,6 +311,8 @@ class ModOptionsView(generics.GenericAPIView, mixins.CreateModelMixin):
         }
     """
 
+    serializer_class = ModeratorSerializer
+    queryset = Moderator.objects.all()
     permission_classes=[permissions.IsAuthenticated, ModeratorPermission|IsStaffPermission]
 
     def post(self, request, *args, **kwargs):
@@ -317,13 +324,15 @@ class ModOptionsView(generics.GenericAPIView, mixins.CreateModelMixin):
         user = request.data.get('user')
         mafia = request.data.get('mafia')
 
+        msg = Message.objects.filter(user=user, mafia=mafia)
+        BanUserFromSpace.objects.create(user=msg.last().user, mafia=msg.last().mafia)
+
         if request.query_params.get('deleteAll') == 'true':
-            Message.objects.filter(user=user, mafia=mafia).delete()
+            msg.delete()
 
         else:
             Message.objects.filter(id=msg_id).delete()
 
-        BanUserFromSpace.objects.create(user=request)
 
         return Response({'success': 'ban successful'}, status=status.HTTP_200_OK)
 
