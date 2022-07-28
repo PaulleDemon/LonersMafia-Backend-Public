@@ -7,7 +7,7 @@ import utils.customfields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('space', '0004_alter_reaction_reaction'),
+        ('mafia', '0004_alter_reaction_reaction'),
     ]
 
     operations = [

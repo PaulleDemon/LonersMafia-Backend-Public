@@ -8,7 +8,7 @@ import utils.customfields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('space', '0011_mafia_alter_rule_options_and_more'),
+        ('mafia', '0011_mafia_alter_rule_options_and_more'),
     ]
 
     operations = [

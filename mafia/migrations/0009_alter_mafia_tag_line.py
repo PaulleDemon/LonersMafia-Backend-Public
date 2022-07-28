@@ -6,12 +6,12 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('space', '0008_alter_reaction_reaction'),
+        ('mafia', '0008_alter_reaction_reaction'),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='space',
+            model_name='mafia',
             name='tag_line',
             field=models.CharField(blank=True, default='', max_length=75, null=True),
         ),

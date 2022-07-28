@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('space', '0009_alter_space_tag_line'),
+        ('mafia', '0009_alter_mafia_tag_line'),
     ]
 
     operations = [

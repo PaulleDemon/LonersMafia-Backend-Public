@@ -17,7 +17,7 @@ from .serializers import ModeratorSerializer, ReactionSerializer, RuleSerializer
 
 
 
-# ------------------------------------- Space Views ---------------------------
+# ------------------------------------- mafia Views ---------------------------
 class CreateMafiaView(generics.GenericAPIView, mixins.CreateModelMixin):
 
     """
@@ -197,8 +197,8 @@ class ListMafiaView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retri
                     query = Mafia.objects.filter(id__in=sub_query).order_by('-moderator__datetime', 'id')
 
             elif sort == 'trending':
-                # sub_query = Space.objects.order_by('id', '-message__datetime').distinct('id') # you can't use distinct with order_by hence the hack
-                # query = Space.objects.filter(id__in=sub_query).annotate(latest=Max('message__datetime')).order_by('latest', 'id')
+                # sub_query = mafia.objects.order_by('id', '-message__datetime').distinct('id') # you can't use distinct with order_by hence the hack
+                # query = mafia.objects.filter(id__in=sub_query).annotate(latest=Max('message__datetime')).order_by('latest', 'id')
                 query = Mafia.objects.annotate(latest=Max(Coalesce('message__datetime', datetime.min))).order_by('-latest', 'id')
 
             else:
@@ -241,8 +241,8 @@ class MessageListView(generics.GenericAPIView, mixins.ListModelMixin):
 
     def get(self, request, *args, **kwargs):
         
-        # if not Space.objects.filter(name=kwargs.get('space')).exists():
-        #     return Response({'doesn\'t exist': 'This space doesn\'t exist'}, status=status.HTTP_404_NOT_FOUND)
+        # if not mafia.objects.filter(name=kwargs.get('mafia')).exists():
+        #     return Response({'doesn\'t exist': 'This mafia doesn\'t exist'}, status=status.HTTP_404_NOT_FOUND)
 
         return self.list(request, *args, **kwargs)
 
@@ -256,7 +256,7 @@ class MessageCreateView(generics.GenericAPIView, mixins.CreateModelMixin):
     permission_classes = [permissions.IsAuthenticated, AnyOneButBannedPermission, OnlyRegisteredPermission]
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
-    # lookup_field = 'space'
+    # lookup_field = 'mafia'
 
     def post(self, request, *args, **kwargs):
 

@@ -8,12 +8,12 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('space', '0013_alter_mafia_color_theme'),
+        ('mafia', '0013_alter_mafia_color_theme'),
     ]
 
     operations = [
         migrations.RenameModel(
-            old_name='BanUserFromSpace',
+            old_name='BanUserFrommafia',
             new_name='BanUserFromMafia',
         ),
     ]

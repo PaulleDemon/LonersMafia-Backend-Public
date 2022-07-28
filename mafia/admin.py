@@ -60,7 +60,7 @@ class ModeratorAdmin(admin.ModelAdmin):
 
 
 @admin.register(BanUserFromMafia)
-class BannedUserFromSpaceAdmin(admin.ModelAdmin):
+class BannedUserFromMafiaAdmin(admin.ModelAdmin):
 
     list_display = ['id', 'user', 'mafia']
     search_fields = ['user__name', 'mafia__name']

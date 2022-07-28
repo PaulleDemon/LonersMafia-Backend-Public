@@ -4,7 +4,7 @@ from ipware import get_client_ip
 
 from . import exceptions
 
-from space.models import Moderator, BanUserFromMafia
+from mafia.models import Moderator, BanUserFromMafia
 from user.models import User, BlacklistedIp
 
 
@@ -55,7 +55,7 @@ class IsUsersObjectPermission(OnlyRegisteredPermission):
         raise exceptions.Forbidden(detail='you don\'t have permission to perform this action')
 
 
-class AnyOneButSpaceBanned(permissions.BasePermission):
+class AnyOneButMafiaBanned(permissions.BasePermission):
     """ users that are banned from mafia cannot message that mafia """
 
     def has_object_permission(self, request, view, obj):
@@ -63,7 +63,7 @@ class AnyOneButSpaceBanned(permissions.BasePermission):
         if (not BanUserFromMafia.objects.filter(user=request.user.id, mafia=obj.id)):
             return True
 
-        raise exceptions.BannedFromSpace()
+        raise exceptions.BannedFromMafia()
 
 
 class ModeratorPermission(permissions.BasePermission):

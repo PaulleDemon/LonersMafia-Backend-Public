@@ -7,7 +7,7 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('space', '0006_alter_space_icon'),
+        ('mafia', '0006_alter_mafia_icon'),
     ]
 
     operations = [
@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='space',
+            model_name='mafia',
             name='tag_line',
             field=models.CharField(blank=True, default='', max_length=60, null=True),
         ),

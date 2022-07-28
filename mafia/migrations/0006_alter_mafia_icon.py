@@ -7,13 +7,13 @@ import utils.customfields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('space', '0005_alter_message_media'),
+        ('mafia', '0005_alter_message_media'),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='space',
+            model_name='mafia',
             name='icon',
-            field=utils.customfields.ContentTypeRestrictedFileField(blank=True, default='space-dashboards/loner-icon.svg', null=True, upload_to='space-dashboards/'),
+            field=utils.customfields.ContentTypeRestrictedFileField(blank=True, default='mafia-dashboards/loner-icon.svg', null=True, upload_to='mafia-dashboards/'),
         ),
     ]

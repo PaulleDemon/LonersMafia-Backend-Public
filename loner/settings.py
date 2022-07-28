@@ -82,7 +82,7 @@ INSTALLED_APPS = [
 
     # apps
     'user',
-    'space',
+    'mafia',
 ]
 
 AUTH_USER_MODEL = "user.User" 

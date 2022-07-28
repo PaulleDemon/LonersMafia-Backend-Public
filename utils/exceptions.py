@@ -8,9 +8,9 @@ class AuthRequired(APIException):
     default_code = 'not_registered'
 
 
-class BannedFromSpace(APIException):
+class BannedFromMafia(APIException):
     status_code = status.HTTP_406_NOT_ACCEPTABLE
-    default_detail = 'You are banned from this space'
+    default_detail = 'You are banned from this mafia'
     default_code = 'banned'
 
 

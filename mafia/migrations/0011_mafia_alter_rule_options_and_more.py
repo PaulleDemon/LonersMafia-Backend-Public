@@ -12,11 +12,11 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('space', '0010_alter_rule_rule'),
+        ('mafia', '0010_alter_rule_rule'),
     ]
 
     operations = [
-        migrations.RenameModel('space', 'mafia'),
+        migrations.RenameModel('mafia', 'mafia'),
         migrations.AlterModelOptions(
             name='mafia',
             options={'verbose_name': 'mafia', 'verbose_name_plural': 'mafias'} 
@@ -26,23 +26,23 @@ class Migration(migrations.Migration):
             options={'verbose_name': 'mafia rule', 'verbose_name_plural': 'mafia rules'},
         ),
         migrations.RenameField(
-            model_name='banuserfromspace',
-            old_name='space',
+            model_name='banuserfrommafia',
+            old_name='mafia',
             new_name='mafia'
         ),
         migrations.RenameField(
             model_name='message',
-            old_name='space',
+            old_name='mafia',
             new_name='mafia'
         ),
         migrations.RenameField(
             model_name='moderator',
-            old_name='space',
+            old_name='mafia',
             new_name='mafia'
         ),
         migrations.RenameField(
             model_name='rule',
-            old_name='space',
+            old_name='mafia',
             new_name='mafia'
         ),
     ]

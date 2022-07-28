@@ -32,22 +32,22 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name='Space',
+            name='mafia',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=30, unique=True, validators=[django.core.validators.RegexValidator(code=400, message='can contain only alpha numeric and -, _ and must begin with alphabet', regex='^[a-zA-Z][a-zA-Z0-9_-]+$')])),
                 ('verbose_name', models.CharField(max_length=40, null=True)),
-                ('icon', utils.customfields.ContentTypeRestrictedFileField(blank=True, null=True, upload_to='space-icons/')),
+                ('icon', utils.customfields.ContentTypeRestrictedFileField(blank=True, null=True, upload_to='mafia-icons/')),
                 ('about', models.CharField(blank=True, max_length=350, null=True)),
                 ('tag_line', models.CharField(blank=True, max_length=60, null=True)),
                 ('color_theme', models.CharField(blank=True, default='#ebade77d', max_length=16, validators=[django.core.validators.RegexValidator(code=400, message='not a valid hex color code', regex='^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$')])),
-                ('background_image', utils.customfields.ContentTypeRestrictedFileField(blank=True, null=True, upload_to='space_background/')),
+                ('background_image', utils.customfields.ContentTypeRestrictedFileField(blank=True, null=True, upload_to='mafia_background/')),
                 ('created_datetime', models.DateTimeField(auto_now_add=True)),
                 ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
             ],
             options={
-                'verbose_name': 'space',
-                'verbose_name_plural': 'spaces',
+                'verbose_name': 'mafia',
+                'verbose_name_plural': 'mafias',
             },
         ),
         migrations.CreateModel(
@@ -55,11 +55,11 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('rule', models.CharField(max_length=250)),
-                ('space', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='space.space')),
+                ('mafia', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='mafia.mafia')),
             ],
             options={
-                'verbose_name': 'space rule',
-                'verbose_name_plural': 'space rules',
+                'verbose_name': 'mafia rule',
+                'verbose_name_plural': 'mafia rules',
             },
         ),
         migrations.CreateModel(
@@ -67,7 +67,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('reaction', models.PositiveSmallIntegerField(choices=[(0, 'heart')])),
-                ('message', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='space.message')),
+                ('message', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='mafia.message')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
         ),
@@ -75,14 +75,14 @@ class Migration(migrations.Migration):
             name='Moderator',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('space', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='space.space')),
+                ('mafia', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='mafia.mafia')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
         ),
         migrations.AddField(
             model_name='message',
-            name='space',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='space.space'),
+            name='mafia',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='mafia.mafia'),
         ),
         migrations.AddField(
             model_name='message',
@@ -90,15 +90,15 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
         ),
         migrations.CreateModel(
-            name='BanUserFromSpace',
+            name='BanUserFrommafia',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('space', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='space.space')),
+                ('mafia', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='mafia.mafia')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
         ),
         migrations.AddConstraint(
-            model_name='space',
+            model_name='mafia',
             constraint=models.UniqueConstraint(django.db.models.functions.text.Lower('name'), name='name_unique'),
         ),
     ]

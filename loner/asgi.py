@@ -18,7 +18,7 @@ from channels.security.websocket import AllowedHostsOriginValidator
 
 from channels.auth import AuthMiddlewareStack
 
-import space.routing
+import mafia.routing
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'loner.settings')
 
@@ -28,7 +28,7 @@ application = ProtocolTypeRouter({
     "websocket": AllowedHostsOriginValidator( 
                 AuthMiddlewareStack(
                     URLRouter(
-                        space.routing.websocket_urlpatterns
+                        mafia.routing.websocket_urlpatterns
                      )
                 )
             ),

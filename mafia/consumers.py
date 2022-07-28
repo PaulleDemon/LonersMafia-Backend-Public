@@ -80,7 +80,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if not await self.mafia_exists(self.room_name):
         
             await self.close(3404) # mafia not found
-            # self.send(text_data="Space doesn't exist", close=1008)
+            # self.send(text_data="mafia doesn't exist", close=1008)
             return
 
         if not await self.user_allowed():
@@ -113,7 +113,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         if not await self.mafia_exists(self.room_name):
             await self.close(3404) # mafia not found
-            # self.send(text_data="Space doesn't exist", close=1008)
+            # self.send(text_data="mafia doesn't exist", close=1008)
             return
 
         text_data_json = json.loads(text_data)

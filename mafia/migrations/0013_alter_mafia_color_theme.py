@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('space', '0012_alter_mafia_background_image_alter_mafia_color_theme_and_more'),
+        ('mafia', '0012_alter_mafia_background_image_alter_mafia_color_theme_and_more'),
     ]
 
     operations = [
