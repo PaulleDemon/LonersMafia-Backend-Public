@@ -26,7 +26,7 @@ class UserAdmin(admin.ModelAdmin):
         for x in queryset:
             BlacklistedIp.objects.create(user=x, ip_address=x.ip_address)
 
-        self.message_user(request, 'users ip was successfully blacklisted', messages.SUCCESS)
+        self.message_user(request, 'user was successfully blacklisted', messages.SUCCESS)
 
     @admin.action(description='Black list and destroy user')
     def destroy_and_blacklistuser(self, request, queryset):

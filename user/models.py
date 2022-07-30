@@ -15,14 +15,15 @@ class CustomUserManager(BaseUserManager):
     """
     Custom user model manager where username is the unique identifier.
     """
-    def create_user(self, username, ip_address=None, **extra_fields):
+    def create_user(self, username, password, ip_address=None, **extra_fields):
         """
         Create and save a User with the given email and password.
         """
         if not username:
-            raise ValueError('The Email must be set')
+            raise ValueError('The user name must be set')
        
         user = self.model(username=username, **extra_fields)
+        user.set_password(password)
         user.save()
         return user
 
@@ -50,6 +51,7 @@ class CustomUserManager(BaseUserManager):
         user.save()
 
         return user
+
 
 user_name_validator = RegexValidator(regex='^[a-zA-Z][a-zA-Z0-9_-]+$', message='can contain only alpha numeric and -, _ and must begin with alphabet', code=status.HTTP_400_BAD_REQUEST)
 
@@ -92,9 +94,9 @@ class BlacklistedIp(models.Model):
     """
         the blacklisted ips will not be able to use the service anymore
     """
-    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
-    ip_address = models.GenericIPAddressField(null=False) 
+    user = models.ForeignKey(User, null=False, blank=False, on_delete=models.DO_NOTHING)
+    ip_address = models.GenericIPAddressField(null=True, blank=True) 
     datetime = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f'{self.ip_address}'
+        return f'{self.user}'

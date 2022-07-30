@@ -9,6 +9,15 @@ from utils.customserializers import DynamicFieldsModelSerializer
 from django.conf import settings
 
 
+
+class UserLoginSerializer(serializers.ModelSerializer):
+
+    class Meta:
+
+        model = User
+        fields = ('name', 'password')
+
+
 class UserSerializer(DynamicFieldsModelSerializer):
 
     avatar_url = serializers.SerializerMethodField()
@@ -50,6 +59,7 @@ class UserSerializer(DynamicFieldsModelSerializer):
             return settings.MEDIA_DOMAIN+obj.avatar.url
         else:
             return None
+
 
 class BanUserSerializer(serializers.ModelSerializer):
 

@@ -1,6 +1,7 @@
 from ipware import get_client_ip
 
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, authenticate
+from django.db.models import Q
 
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -9,39 +10,71 @@ from rest_framework import generics, mixins, status
 from utils.permissions import AnyOneButBannedPermission, IsStaffPermission, IsUsersObjectPermission
 
 from .models import User, BlacklistedIp
-from .serializers import BanUserSerializer, UserSerializer
+from .serializers import BanUserSerializer, UserLoginSerializer, UserSerializer
 
 
 
 # ------------------------------------- user Views ---------------------------
-class LoginUserView(generics.GenericAPIView, mixins.ListModelMixin):
+# class LoginUserView(generics.GenericAPIView, mixins.ListModelMixin):
+
+#     queryset = User.objects.all()
+#     serializer_class = UserSerializer
+#     permission_classes = [AnyOneButBannedPermission]
+
+#     def get(self, request, *args, **kwargs):
+
+#         ip_address, is_routable = get_client_ip(request)
+
+#         if ip_address:
+
+#             if BlacklistedIp.objects.filter(ip_address=ip_address):
+#                 return Response({'banned': 'you are banned from loners. Look what you have done to yourself. Be a good loner next time.'}, status=status.HTTP_417_EXPECTATION_FAILED)
+
+#             try:
+#                 user = User.objects.get(ip_address=ip_address)
+#                 # logout(request) # don't log them out else sessionif will be lost
+#                 login(request, user)
+#                 serialized = self.get_serializer(instance=user)
+
+#                 return Response(serialized.data, status=status.HTTP_200_OK)
+
+#             except (User.DoesNotExist, User.MultipleObjectsReturned) as e:
+#                 # print("Error: ", e)
+#                 return Response({'doesn\'t exist': 'User doesn\'t exist'}, status=status.HTTP_401_UNAUTHORIZED)
+
+#         return Response({'ip error': 'Your ip address is missing or fishy'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class LoginUserView(generics.GenericAPIView, mixins.CreateModelMixin):
+
+    """
+        login view
+    """
 
     queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [AnyOneButBannedPermission]
+    serializer_class = UserLoginSerializer
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
 
         ip_address, is_routable = get_client_ip(request)
 
-        if ip_address:
+        name = request.data.get("name")
+        password = request.data.get("password")
 
-            if BlacklistedIp.objects.filter(ip_address=ip_address):
-                return Response({'banned': 'you are banned from loners. Look what you have done to yourself. Be a good loner next time.'}, status=status.HTTP_417_EXPECTATION_FAILED)
+        if BlacklistedIp.objects.filter(Q(ip_address=ip_address) | Q(user__name=name)):
+            return Response({'banned': 'you are banned from loners. Look what you have done to yourself. Be a good loner next time.'}, status=status.HTTP_417_EXPECTATION_FAILED)
 
-            try:
-                user = User.objects.get(ip_address=ip_address)
-                # logout(request) # don't log them out else sessionif will be lost
-                login(request, user)
-                serialized = self.get_serializer(instance=user)
+        user = authenticate(username=name, password=password)
+        # logout(request) # don't log them out else sessionif will be lost
+        if user:
+            login(request, user)
+            serialized = self.get_serializer(instance=user)
 
-                return Response(serialized.data, status=status.HTTP_200_OK)
+            return Response(serialized.data, status=status.HTTP_200_OK)
 
-            except (User.DoesNotExist, User.MultipleObjectsReturned) as e:
-                # print("Error: ", e)
-                return Response({'doesn\'t exist': 'User doesn\'t exist'}, status=status.HTTP_401_UNAUTHORIZED)
-
-        return Response({'ip error': 'Your ip address is missing or fishy'}, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            # print("Error: ", e)
+            return Response({'doesn\'t exist': 'User doesn\'t exist'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class CreateUserView(generics.GenericAPIView, mixins.CreateModelMixin):
@@ -60,12 +93,12 @@ class CreateUserView(generics.GenericAPIView, mixins.CreateModelMixin):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        ip_address, is_routable = get_client_ip(request)
+        user = serializer.save()
 
+        ip_address, is_routable = get_client_ip(request)
         if ip_address:
 
             # print("SErialized data: ", serializer.data)
-            user = serializer.save()
             user.ip_address = ip_address
             user.save()
             # user = User.objects.create(**serializer.data, ip_address=ip_address)
@@ -127,10 +160,10 @@ class BanUserFromNetworkView(generics.GenericAPIView, mixins.CreateModelMixin):
         except User.DoesNotExist:
             return Response({'detail': 'user doesn\'t exist'}, status=status.HTTP_404_NOT_FOUND)
 
-        BlacklistedIp.objects.create(ip_address=user.ip_address)
+        BlacklistedIp.objects.create(user=user, ip_address=user.ip_address)
 
         logout(request)
         # if request.query_params.get('delete') == 'true':
-        user.delete()
 
+        # user.delete()
         return Response(status=status.HTTP_201_CREATED)
