@@ -76,7 +76,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = CustomUserManager()
 
-    USERNAME_FIELD = 'email' # emails only for admins and staffs
+    USERNAME_FIELD = 'name' 
     REQUIRED_FIELDS = []
     
 

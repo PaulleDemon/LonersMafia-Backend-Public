@@ -5,7 +5,7 @@ from django.db.models import Q
 
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework import generics, mixins, status
+from rest_framework import generics, mixins, status, permissions
 
 from utils.permissions import AnyOneButBannedPermission, IsStaffPermission, IsUsersObjectPermission
 
@@ -64,7 +64,9 @@ class LoginUserView(generics.GenericAPIView, mixins.CreateModelMixin):
         if BlacklistedIp.objects.filter(Q(ip_address=ip_address) | Q(user__name=name)):
             return Response({'banned': 'you are banned from loners. Look what you have done to yourself. Be a good loner next time.'}, status=status.HTTP_417_EXPECTATION_FAILED)
 
-        user = authenticate(username=name, password=password)
+      
+        user = authenticate(name=name, password=password)
+
         # logout(request) # don't log them out else sessionif will be lost
         if user:
             login(request, user)
@@ -119,7 +121,7 @@ class UpdateUserView(generics.GenericAPIView, mixins.UpdateModelMixin):
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsUsersObjectPermission]
+    permission_classes = [permissions.IsAuthenticated, IsUsersObjectPermission]
     lookup_field = 'id'
 
     def put(self, request, *args, **kwargs):

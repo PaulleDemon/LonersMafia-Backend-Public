@@ -19,6 +19,14 @@ from django.urls import path, include
 from django.conf.urls.static import static
 
 
+admin.site.site_header = 'Loners Mafia'
+admin.site.site_url = 'lonersmafia.com'
+admin.site.site_url = 'lonersmafia.com'
+
+admin.autodiscover()
+# admin.site.login = staff_member_required(admin.site.login)
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('user/', include('user.urls')),

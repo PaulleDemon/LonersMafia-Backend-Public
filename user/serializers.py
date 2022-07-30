@@ -15,9 +15,12 @@ class UserLoginSerializer(serializers.ModelSerializer):
     class Meta:
 
         model = User
-        fields = ('name', 'password')
+        fields = ('id', 'name', 'password', 'avatar', 'tag_line')
         extra_kwargs = {
-            'password': {'write_only': True}
+            'password': {'write_only': True},
+            'id': {'read_only': True},
+            'avatar': {'read_only': True},
+            'tag_line': {'read_only': True},
         }
 
 
@@ -26,23 +29,25 @@ class UserCreateSerializer(serializers.ModelSerializer):
     class Meta:
         
         model = User
-        fields = ('name', 'avatar', 'tag_line', 'password')
+        fields = ('id', 'name', 'avatar', 'tag_line', 'password')
 
         extra_kwargs = {
+            'id': {'read_only': True},
             'password': {'write_only': True}
         }
 
     def create(self, validated_data):
         user = User.objects.create(
-            name=validated_data['name'],
-            tag_line=validated_data['tag_line'],
-            avatar=validated_data['avatar']
+            name=validated_data.get('name', ''),
+            tag_line=validated_data.get('tag_line', ''),
+            avatar=validated_data.get('avatar')
         )
 
         user.set_password(validated_data['password'])
         user.save()
 
         return user
+
 
 class UserSerializer(DynamicFieldsModelSerializer):
 

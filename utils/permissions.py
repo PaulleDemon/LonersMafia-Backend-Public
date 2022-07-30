@@ -47,9 +47,8 @@ class IsUsersObjectPermission(OnlyRegisteredPermission):
 
     def has_object_permission(self, request, view, obj):
 
-        ip_address, is_routable = get_client_ip(request)
-
-        if User.objects.filter(name=request.user.name, ip_address=ip_address).exists():
+        
+        if request.user.id == obj.id:
             return True
 
         raise exceptions.Forbidden(detail='you don\'t have permission to perform this action')

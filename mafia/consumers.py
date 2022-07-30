@@ -29,16 +29,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
     """ This receives connection to chat creates room"""
 
     @database_sync_to_async
-    def create_chat(self, msg, sender_ip):
+    def create_chat(self, msg, user):
         """ saves message to data base """
 
         if msg == "":
             return
 
         try:
-            user = User.objects.get(ip_address=sender_ip)
+            user = User.objects.get(id=user.id)
 
-        except User.DoesNotExist:
+        except (User.DoesNotExist, User.MultipleObjectsReturned):
             return
 
         try:
@@ -157,10 +157,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         # if isinstance(self.scope['user'], AnonymousUser):
         #     return 
-        ip_address = self.scope['client'][0]
+        # ip_address = self.scope['client'][0]
+        user = self.scope['user']
 
         if self.channel_name == event['sender_channel_name']:
-            await self.create_chat(message, ip_address)
+            await self.create_chat(message, user)
 
     async def react_message(self, event):
         """ calls the mark read to mark the messages as read """

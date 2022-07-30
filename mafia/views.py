@@ -157,7 +157,7 @@ class ListMafiaView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retri
 
     def get(self, request, *args, **kwargs):
         
-        print("MEta: ", request.META)
+        # print("MEta: ", request.META)
 
         if kwargs.get('name'):
             return self.retrieve(request, *args, **kwargs)
