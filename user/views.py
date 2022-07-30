@@ -10,7 +10,7 @@ from rest_framework import generics, mixins, status
 from utils.permissions import AnyOneButBannedPermission, IsStaffPermission, IsUsersObjectPermission
 
 from .models import User, BlacklistedIp
-from .serializers import BanUserSerializer, UserLoginSerializer, UserSerializer
+from .serializers import BanUserSerializer, UserCreateSerializer, UserLoginSerializer, UserSerializer
 
 
 
@@ -84,7 +84,7 @@ class CreateUserView(generics.GenericAPIView, mixins.CreateModelMixin):
     """
 
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = UserCreateSerializer
     permission_classes = [AnyOneButBannedPermission]
     parser_classes = [MultiPartParser, FormParser]
 
@@ -96,18 +96,19 @@ class CreateUserView(generics.GenericAPIView, mixins.CreateModelMixin):
         user = serializer.save()
 
         ip_address, is_routable = get_client_ip(request)
+        
         if ip_address:
 
             # print("SErialized data: ", serializer.data)
             user.ip_address = ip_address
             user.save()
             # user = User.objects.create(**serializer.data, ip_address=ip_address)
-            headers = self.get_success_headers(serializer.data)
-            login(request, user)
+            
+        headers = self.get_success_headers(serializer.data)
 
-            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        login(request, user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
     
-        return Response(status.HTTP_400_BAD_REQUEST) 
     
 
 class UpdateUserView(generics.GenericAPIView, mixins.UpdateModelMixin):

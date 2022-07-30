@@ -16,7 +16,33 @@ class UserLoginSerializer(serializers.ModelSerializer):
 
         model = User
         fields = ('name', 'password')
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
 
+
+class UserCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        
+        model = User
+        fields = ('name', 'avatar', 'tag_line', 'password')
+
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
+
+    def create(self, validated_data):
+        user = User.objects.create(
+            name=validated_data['name'],
+            tag_line=validated_data['tag_line'],
+            avatar=validated_data['avatar']
+        )
+
+        user.set_password(validated_data['password'])
+        user.save()
+
+        return user
 
 class UserSerializer(DynamicFieldsModelSerializer):
 

@@ -19,6 +19,7 @@ class CustomUserManager(BaseUserManager):
         """
         Create and save a User with the given email and password.
         """
+
         if not username:
             raise ValueError('The user name must be set')
        
@@ -62,20 +63,22 @@ class User(AbstractBaseUser, PermissionsMixin):
     avatar = ContentTypeRestrictedFileField(upload_to='avatars/', content_types=['image/png', 'image/jpeg', 'image/svg+xml'], 
             max_upload_size=10485760, default='avatars/avatar-default.svg', null=True)  # 20 mb max
 
-    #TODO: make ip field unique
     ip_address = models.GenericIPAddressField(null=True, blank=True) # the ip is stored to prevent attacks on server
     email = models.EmailField(unique=True, null=True, blank=True) # used only for staff/admin users
 
     tag_line = models.CharField(max_length=75, null=True, blank=True)
 
-    objects = CustomUserManager()
-    USERNAME_FIELD = 'email' # emails only for admins and staffs
-    
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     
     date_joined = models.DateTimeField(default=timezone.now) # you can also use auto_add_now=True
+
+    objects = CustomUserManager()
+
+    USERNAME_FIELD = 'email' # emails only for admins and staffs
+    REQUIRED_FIELDS = []
+    
 
     def __str__(self):
         return f'{self.name}'
@@ -94,7 +97,7 @@ class BlacklistedIp(models.Model):
     """
         the blacklisted ips will not be able to use the service anymore
     """
-    user = models.ForeignKey(User, null=False, blank=False, on_delete=models.DO_NOTHING)
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.DO_NOTHING)
     ip_address = models.GenericIPAddressField(null=True, blank=True) 
     datetime = models.DateTimeField(default=timezone.now)
 
