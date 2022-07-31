@@ -52,36 +52,30 @@ class CreateMafiaView(generics.GenericAPIView, mixins.CreateModelMixin):
             data._mutable = _mutable
 
 
-
         serializer = self.get_serializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
 
         model = Mafia(**serializer.validated_data)
         
-        user = User.objects.filter(ip_address=ip_address)
         
-        if user.exists():
-            model.created_by = user.first()
-            try:
-                model.save()
-                
-                if len(rules) > 5:
-                    return Response({'bad request': 'only 5 rules allowed'}, status=status.HTTP_400_BAD_REQUEST)
+        model.created_by = request.user
+        try:
+            model.save()
+            
+            if len(rules) > 5:
+                return Response({'bad request': 'only 5 rules allowed'}, status=status.HTTP_400_BAD_REQUEST)
 
-                for rule in rules: 
-                    rule_serializer = RuleSerializer(data={'mafia': model.id, 'rule': rule})
-                    rule_serializer.is_valid(raise_exception=True)
-                    rule_serializer.save()
+            for rule in rules: 
+                rule_serializer = RuleSerializer(data={'mafia': model.id, 'rule': rule})
+                rule_serializer.is_valid(raise_exception=True)
+                rule_serializer.save()
 
-            except (Exception) as e:
-                pass
+        except (Exception) as e:
+            pass
 
-            new_serializer = MafiaSerializer(model, context={'request': request})
+        new_serializer = MafiaSerializer(model, context={'request': request})
 
-            return Response(new_serializer.data, status=status.HTTP_201_CREATED)
-
-        else:
-            return Response({'unregistered': 'you need to register before creating a mafia'}, status=status.HTTP_403_FORBIDDEN)
+        return Response(new_serializer.data, status=status.HTTP_201_CREATED)
 
 
 class UpdateMafiaView(generics.GenericAPIView, mixins.UpdateModelMixin):

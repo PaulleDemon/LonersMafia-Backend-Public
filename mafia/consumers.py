@@ -2,13 +2,13 @@ import json
 
 from django.db.models import Q
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import AnonymousUser
+#from django.contrib.auth.models import AnonymousUser
 
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 
-from asgiref.sync import async_to_sync
+#from asgiref.sync import async_to_sync
 
 # from django.dispatch import receiver
 # from django.db.models.signals import post_save
@@ -54,9 +54,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
     def user_allowed(self):
         """ checks if the user isn't blacklisted """
         try:
+
             ip_address = self.scope['client'][0]
-            black_listed = BlacklistedIp.objects.filter(ip_address=ip_address).exists()
-            banned_from_mafia = BanUserFromMafia.objects.filter(user__ip_address=ip_address).exists()
+            black_listed = BlacklistedIp.objects.filter(Q(ip_address=ip_address) | Q(user=self.scope.get('user'))).exists()
+            banned_from_mafia = BanUserFromMafia.objects.filter(user=self.scope.get('user'), mafia__name=self.room_name).exists()
+            
             return (not black_listed and not banned_from_mafia)
         
         except (KeyError, IndexError) as e:
@@ -75,7 +77,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = 'chat_%s' % self.room_name
 
-        await self.accept()
+        await self.accept() # before closing we need to accept connection else the error code is always 1006
 
         if not await self.mafia_exists(self.room_name):
         
@@ -84,7 +86,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return
 
         if not await self.user_allowed():
-            await self.close(3401)
+            await self.close(3401) # user not allowed
             return 
 
          # Join room group
@@ -102,11 +104,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     # Receive message from WebSocket
     async def receive(self, text_data):
-        """ If text_data contains message it will be sent to save_message
-         which will then save message in database. If it contains markread it will mark messages in 
-         that room as read"""
+        """ 
+            If text_data contains message it will be sent to save_message
+            which will then save message in database. 
+         """
 
-        print("Scope: ", self.scope)
+        # print("Scope: ", self.scope)
         if not await self.user_allowed():
             await self.close(3401)
             return 
@@ -164,12 +167,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.create_chat(message, user)
 
     async def react_message(self, event):
-        """ calls the mark read to mark the messages as read """
-
-        room = event['room']
-
-        if self.channel_name != event['sender_channel_name']:
-            await self.mark_message_read(room, self.scope['user'])
+        """ 
+            reacts to message: 
+            currently we don't use websockets to transmit reactions instead we use Http protocol
+        """
+        pass
 
     async def send_saved(self, event):
         """ sends the saved message from database. """
