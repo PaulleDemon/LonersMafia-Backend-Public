@@ -163,7 +163,7 @@ class BanUserFromNetworkView(generics.GenericAPIView, mixins.CreateModelMixin):
         except User.DoesNotExist:
             return Response({'detail': 'user doesn\'t exist'}, status=status.HTTP_404_NOT_FOUND)
 
-        BlacklistedIp.objects.create(user=user, ip_address=user.ip_address)
+        BlacklistedIp.objects.create(user=user)
 
         logout(request)
         # if request.query_params.get('delete') == 'true':

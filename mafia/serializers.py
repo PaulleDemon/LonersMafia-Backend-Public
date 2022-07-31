@@ -124,6 +124,7 @@ class MessageSerializer(serializers.ModelSerializer):
 
     is_staff = serializers.SerializerMethodField() # lets user know if the message is from staff/moderator
     is_mod = serializers.SerializerMethodField() # lets user know if the message is from mod
+    is_banned = serializers.SerializerMethodField() # tells if the user is banned from the space, prevents mods from banning again
 
     media_url = serializers.SerializerMethodField()
     # reactions_count = serializers.SerializerMethodField()
@@ -150,6 +151,12 @@ class MessageSerializer(serializers.ModelSerializer):
         user = request.user.id if request else self.context.get('user')
 
         return models.Message.objects.filter(id=obj.id, user=user).exists()
+
+    def get_is_banned(self, obj):
+        """
+            tells if the user is banned from the mafia
+        """
+        return models.BanUserFromMafia.objects.filter(user=obj.user, mafia=obj.mafia).exists()
 
     def get_is_mod(self, obj):
         """

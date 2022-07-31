@@ -314,11 +314,15 @@ class ModOptionsView(generics.GenericAPIView, mixins.CreateModelMixin):
         if 'user' not in request.data or 'mafia' not in request.data or 'id' not in request.data:
             return Response(data={'bad request': 'incorrect data'}, status=status.HTTP_400_BAD_REQUEST)
 
+
         msg_id = request.data.get('id')
         user = request.data.get('user')
         mafia = request.data.get('mafia')
-
         msg = Message.objects.filter(user=user, mafia=mafia)
+
+        if (BanUserFromMafia.objects.filter(user=msg.last().user, mafia=msg.last().mafia).exists()):
+            return Response(data={'bad request': 'user already banned from this mafia'}, status=status.HTTP_400_BAD_REQUEST)
+
         BanUserFromMafia.objects.create(user=msg.last().user, mafia=msg.last().mafia)
 
         if request.query_params.get('deleteAll') == 'true':
