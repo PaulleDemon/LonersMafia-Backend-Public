@@ -8,7 +8,6 @@ def admin_login(request):
 
     error = ""
     
-    print("Email: ", request.POST)
     email = request.POST.get("email")
     password = request.POST.get("password")
     if email and password:
@@ -24,10 +23,8 @@ def admin_login(request):
             elif valid:
                 return redirect("https://lonersmafia.com")
             
-            print("user: ", user,)
 
         except (User.DoesNotExist, User.MultipleObjectsReturned) as e:
-            print("error: ", e)
             pass
 
         error = "Email and password didn't match"
