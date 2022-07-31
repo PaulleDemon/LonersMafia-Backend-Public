@@ -154,7 +154,9 @@ REST_FRAMEWORK = {
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+                BASE_DIR.joinpath('templates', 'admin')
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
