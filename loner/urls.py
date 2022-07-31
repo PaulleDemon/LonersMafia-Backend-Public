@@ -31,8 +31,11 @@ admin.autodiscover()
 
 urlpatterns = [
     path('admin/login/', views.admin_login, name='admin-login'),
-    path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls, name='admin'),
     path('user/', include('user.urls')),
     path('mafia/', include('mafia.urls')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
