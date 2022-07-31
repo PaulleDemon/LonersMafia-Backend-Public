@@ -56,12 +56,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
         try:
 
             ip_address = self.scope['client'][0]
-            black_listed = BlacklistedIp.objects.filter(Q(ip_address=ip_address) | Q(user=self.scope.get('user'))).exists()
-            banned_from_mafia = BanUserFromMafia.objects.filter(user=self.scope.get('user'), mafia__name=self.room_name).exists()
+            black_listed = BlacklistedIp.objects.filter(Q(ip_address=ip_address) | Q(user=self.scope.get('user').id)).exists()
+            banned_from_mafia = BanUserFromMafia.objects.filter(user=self.scope.get('user').id, mafia__name=self.room_name).exists()
             
             return (not black_listed and not banned_from_mafia)
         
-        except (KeyError, IndexError) as e:
+        except (KeyError, IndexError, TypeError) as e:
             return False
 
     @database_sync_to_async
