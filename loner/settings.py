@@ -254,6 +254,7 @@ STATIC_ROOT = 'static'
 
 STATICFILES_DIRS = [
     BASE_DIR.joinpath('templates'),
+    BASE_DIR.joinpath('build')
 ]
 
 MEDIA_URL ='/media/'
