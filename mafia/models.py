@@ -26,7 +26,7 @@ class Mafia(models.Model):
     verbose_name = models.CharField(max_length=40, null=True, blank=True) # this is a verbose name (invite to join memers)
 
     icon = ContentTypeRestrictedFileField(upload_to='mafia-dashboards/', content_types=['image/png', 'image/jpeg', 'image/gif', 'image/svg+xml'], 
-                                            max_upload_size=5242880, null=True, blank=True, default='mafia-dashboards/loner-icon.svg')
+                                            max_upload_size=5242880, null=True, blank=True, default='mafia-dashboards/default-loner-icon.svg')
     about = models.CharField(max_length=350, null=True, blank=True)
     tag_line = models.CharField(max_length=75, default="", null=True, blank=True)
 

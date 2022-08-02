@@ -1,0 +1,7 @@
+__pycache__
+db.sqlite3
+media/
+loner0.json
+request-data.json
+http-request.json
+readme.md

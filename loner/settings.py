@@ -73,6 +73,8 @@ INSTALLED_APPS = [
     'channels',
     'rest_framework',
 
+    'storages', # for aws
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -91,7 +93,7 @@ if DEBUG:
     channels_hosts = [('127.0.0.1', 6379)]
 
 else:
-    channels_hosts = [('', 6379)]
+    channels_hosts = [(env('CHANNEL_LAYER_HOST'), env('CHANNEL_LAYER_PORT'))]
 
 
 CHANNEL_LAYERS = {
@@ -197,6 +199,18 @@ if DEBUG:
             }
         }
 
+else:
+    DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql_psycopg2',
+                'NAME': env('PROD_DB_NAME'),
+                'USER': env('PROD_DB_USER'),
+                'PASSWORD': env('PROD_DB_PASSWORD'),
+                'HOST': env('PROD_DB_HOST'),
+                'PORT': env('PROD_DB_PORT'),
+            }
+        }
+
 
 if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # This is only for development
@@ -204,12 +218,6 @@ if DEBUG:
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' # for production
 
-
-EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_HOST = 'smtpout.secureserver.net'
-# EMAIL_PORT = 587
-EMAIL_PORT = 465
-EMAIL_USE_TLS = True
 
 # DEFAULT_FROM_EMAIL = Address(display_name="loners mafia", addr_spec=EMAIL_HOST_USER)
 
@@ -246,6 +254,20 @@ USE_I18N = True
 USE_TZ = True
 
 
+if not DEBUG:
+    AWS_ACCESS_KEY_ID = env.get_value('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = env.get_value('AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = env.get_value('AWS_STORAGE_BUCKET_NAME')
+
+    AWS_S3_REGION_NAME = env.get_value('AWS_S3_REGION_NAME')
+    AWS_QUERYSTRING_AUTH = env.get_value('AWS_QUERYSTRING_AUTH')
+    AWS_S3_CUSTOM_DOMAIN = env.get_value('AWS_S3_CUSTOM_DOMAIN')  
+    AWS_S3_OBJECT_PARAMETERS = {'CacheControl': f'max-age={env.get_value("AWS_CACHE_MAX_AGE")}'}
+    AWS_DEFAULT_ACL = env.get_value('AWS_DEFAULT_ACL')
+
+    AWS_LOCATION = env.get_value('AWS_LOCATION')
+
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
@@ -257,8 +279,15 @@ STATICFILES_DIRS = [
     BASE_DIR.joinpath('build')
 ]
 
-MEDIA_URL ='/media/'
-MEDIA_ROOT = BASE_DIR.joinpath('media')
+
+
+if DEBUG:
+    MEDIA_URL ='/media/'
+    MEDIA_ROOT = BASE_DIR.joinpath('media')
+
+else:
+    DEFAULT_FILE_STORAGE = 'loners.s3storage.MediaStore'
+    MEDIA_URL = '/media/'
 
 
 # Default primary key field type
