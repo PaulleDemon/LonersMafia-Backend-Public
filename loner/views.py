@@ -29,4 +29,4 @@ def admin_login(request):
 
         error = "Email and password didn't match"
 
-    return render(request, "index.html", context={"errors": error})
+    return render(request, "admin-index.html", context={"errors": error})
