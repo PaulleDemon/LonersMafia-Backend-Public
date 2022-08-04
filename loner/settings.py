@@ -31,10 +31,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = env.get_value('SECRET_KEY', default='django-insecure-)scsh6_myslqst35cyvnv2@^0a-z7^zaw=r#b7*tai2z5%ypzz')
 
 # TODO: don't run with debug turned on in production!
-# DEBUG = True
-DEBUG = False
+DEBUG = True
+# DEBUG = False
 
-USESQLITE_DEV=False # to use sqlite database set this to true in development
+USESQLITE_DEV=False # to use sqlite database set this to true in development, to use sqlite
 
 ALLOWED_HOSTS = []
 
@@ -284,7 +284,7 @@ STATIC_ROOT = BASE_DIR.joinpath('static')
 
 STATICFILES_DIRS = [
     BASE_DIR.joinpath('templates'),
-    BASE_DIR.joinpath('build', 'static'),
+    BASE_DIR.joinpath('build'),
     # BASE_DIR.joinpath('build', 'static'),
 ]
 
@@ -295,7 +295,7 @@ if DEBUG:
     MEDIA_ROOT = BASE_DIR.joinpath('media')
 
 else:
-    DEFAULT_FILE_STORAGE = 'loners.s3storage.MediaStore'
+    DEFAULT_FILE_STORAGE = 'loner.s3storage.MediaStore'
     MEDIA_URL = '/media/'
 
 
