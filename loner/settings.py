@@ -31,8 +31,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = env.get_value('SECRET_KEY', default='django-insecure-)scsh6_myslqst35cyvnv2@^0a-z7^zaw=r#b7*tai2z5%ypzz')
 
 # TODO: don't run with debug turned on in production!
-DEBUG = True
-# DEBUG = False
+# DEBUG = True
+DEBUG = False
 
 USESQLITE_DEV=False # to use sqlite database set this to true in development, to use sqlite
 
@@ -68,8 +68,8 @@ MEDIA_DOMAIN = '' # you can use subdomins to server media files
 if DEBUG:
     MEDIA_DOMAIN = 'http://localhost:8000'
 
-else:
-    MEDIA_DOMAIN = env.get_value('AWS_S3_CUSTOM_DOMAIN')
+# else:
+#     MEDIA_DOMAIN = env.get_value('AWS_S3_CUSTOM_DOMAIN') # this isn't required in production
 
 # Application definition
 INSTALLED_APPS = [
