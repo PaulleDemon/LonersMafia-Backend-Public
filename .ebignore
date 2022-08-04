@@ -1,7 +1,9 @@
 __pycache__
+.vscode
 db.sqlite3
 media/
 loner0.json
 request-data.json
 http-request.json
 readme.md
+.git

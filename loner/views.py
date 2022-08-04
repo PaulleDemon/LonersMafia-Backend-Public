@@ -4,6 +4,7 @@ from django.shortcuts import redirect, render
 from user.models import User
 
 
+# used to login admins
 def admin_login(request):
 
     error = ""

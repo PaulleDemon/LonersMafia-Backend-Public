@@ -1,8 +1,8 @@
 {
   "files": {
-    "main.css": "/static/css/main.c0e8fbef.css",
-    "main.js": "/static/js/main.f4bb9529.js",
-    "static/js/787.415783ff.chunk.js": "/static/js/787.415783ff.chunk.js",
+    "main.css": "/static/css/main.350cb216.css",
+    "main.js": "/static/js/main.b35efa13.js",
+    "static/js/27.d8927c73.chunk.js": "/static/js/27.d8927c73.chunk.js",
     "static/media/peckspace.png": "/static/media/peckspace.ccf93a455075a3b0c237.png",
     "static/media/banned-icon.png": "/static/media/banned-icon.ee2494f263ede4185eb2.png",
     "static/media/send.svg": "/static/media/send.b9cb5db89ab1a42b68da72669d72ddf8.svg",
@@ -26,13 +26,10 @@
     "static/media/kebab-menu.svg": "/static/media/kebab-menu.906d8b26db8a4003bfe44051d1be9747.svg",
     "static/media/stickers.svg": "/static/media/stickers.30facde5cb57e313ddb72bd715d41b86.svg",
     "static/media/create.svg": "/static/media/create.5e0d06eb349b0b476756846e29eb5669.svg",
-    "static/media/upload.svg": "/static/media/upload.480c0572f600e5335cfe3cf9f8e8b052.svg",
-    "main.c0e8fbef.css.map": "/static/css/main.c0e8fbef.css.map",
-    "main.f4bb9529.js.map": "/static/js/main.f4bb9529.js.map",
-    "787.415783ff.chunk.js.map": "/static/js/787.415783ff.chunk.js.map"
+    "static/media/upload.svg": "/static/media/upload.480c0572f600e5335cfe3cf9f8e8b052.svg"
   },
   "entrypoints": [
-    "static/css/main.c0e8fbef.css",
-    "static/js/main.f4bb9529.js"
+    "static/css/main.350cb216.css",
+    "static/js/main.b35efa13.js"
   ]
 }

@@ -18,8 +18,10 @@
       "sizes": "512x512"
     }
   ],
-  "start_url": ".",
-  "description": "speak your mind on LonersMafia, an open-sourced anonymous platform just for you. Felt like you are not being heard? or you have a controversial opinion, well LonersMafia is just for you. Start a Mafia, invite loners and more.",
+
+  "start_url": "/",
+  "id": ".",
+  "scope": "/",
   "display": "standalone",
   "theme_color": "#000000",
   "background_color": "#ffffff"

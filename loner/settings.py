@@ -30,8 +30,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # TODO: SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env.get_value('SECRET_KEY', default='django-insecure-)scsh6_myslqst35cyvnv2@^0a-z7^zaw=r#b7*tai2z5%ypzz')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# TODO: don't run with debug turned on in production!
+# DEBUG = True
+DEBUG = False
 
 USESQLITE_DEV=False # to use sqlite database set this to true in development
 
@@ -67,6 +68,9 @@ MEDIA_DOMAIN = '' # you can use subdomins to server media files
 if DEBUG:
     MEDIA_DOMAIN = 'http://localhost:8000'
 
+else:
+    MEDIA_DOMAIN = env.get_value('AWS_S3_CUSTOM_DOMAIN')
+
 # Application definition
 INSTALLED_APPS = [
 
@@ -92,7 +96,7 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = "user.User" 
 
 if DEBUG:
-    channels_hosts = [('127.0.0.1', 6379)]
+    channels_hosts = [('127.0.0.1', '6379')]
 
 else:
     channels_hosts = [(env('CHANNEL_LAYER_HOST'), env('CHANNEL_LAYER_PORT'))]
@@ -159,8 +163,9 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
+                # BASE_DIR.joinpath('static'),
                 BASE_DIR.joinpath('build'),
-                BASE_DIR.joinpath('templates', 'admin'),
+                BASE_DIR.joinpath('templates', 'admin-login'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -263,23 +268,24 @@ if not DEBUG:
     AWS_STORAGE_BUCKET_NAME = env.get_value('AWS_STORAGE_BUCKET_NAME')
 
     AWS_S3_REGION_NAME = env.get_value('AWS_S3_REGION_NAME')
-    AWS_QUERYSTRING_AUTH = env.get_value('AWS_QUERYSTRING_AUTH')
+    AWS_QUERYSTRING_AUTH = bool(int(env.get_value('AWS_QUERYSTRING_AUTH'))) # True/False value
     AWS_S3_CUSTOM_DOMAIN = env.get_value('AWS_S3_CUSTOM_DOMAIN')  
     AWS_S3_OBJECT_PARAMETERS = {'CacheControl': f'max-age={env.get_value("AWS_CACHE_MAX_AGE")}'}
     AWS_DEFAULT_ACL = env.get_value('AWS_DEFAULT_ACL')
 
-    AWS_LOCATION = env.get_value('AWS_LOCATION')
+    # AWS_LOCATION = env.get_value('AWS_LOCATION')
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
-STATIC_URL = 'static/'
-STATIC_ROOT = 'static'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR.joinpath('static')
 
 STATICFILES_DIRS = [
     BASE_DIR.joinpath('templates'),
-    BASE_DIR.joinpath('build', 'static')
+    BASE_DIR.joinpath('build', 'static'),
+    # BASE_DIR.joinpath('build', 'static'),
 ]
 
 
