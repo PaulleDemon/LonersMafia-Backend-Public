@@ -271,7 +271,7 @@ if not DEBUG:
     AWS_QUERYSTRING_AUTH = bool(int(env.get_value('AWS_QUERYSTRING_AUTH'))) # True/False value
     AWS_S3_CUSTOM_DOMAIN = env.get_value('AWS_S3_CUSTOM_DOMAIN')  
     AWS_S3_OBJECT_PARAMETERS = {'CacheControl': f'max-age={env.get_value("AWS_CACHE_MAX_AGE")}'}
-    AWS_DEFAULT_ACL = env.get_value('AWS_DEFAULT_ACL')
+    AWS_DEFAULT_ACL = None
 
     # AWS_LOCATION = env.get_value('AWS_LOCATION')
 

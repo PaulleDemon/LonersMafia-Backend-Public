@@ -8,6 +8,8 @@ https://docs.djangoproject.com/en/4.0/howto/deployment/asgi/
 """
 
 import os
+from .wsgi import * # important for production
+
 
 from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter
@@ -20,7 +22,7 @@ from channels.auth import AuthMiddlewareStack
 
 import mafia.routing
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'loner.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'loner.settings') # if wsgi is not imported first then move this above mafia.routing, this will set settings path to env variable
 
 
 application = ProtocolTypeRouter({
