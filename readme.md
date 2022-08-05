@@ -7,6 +7,77 @@ Speak your mind out on loners mafia.
 
 This repository contains source code to lonersmafia back-end. 
 
+### File directory overview
+
+```
+.
+├── privacy_terms/
+│   ├── __init__.py
+│   ├── views.py
+│   ├── admin.py
+│   ├── apps.py
+│   └── models.py
+├── loner/
+│   ├── __init__.py
+│   ├── views.py
+│   ├── s3storage.py
+│   ├── urls.py
+│   ├── auth_middleware.py
+│   ├── asgi.py
+│   ├── wsgi.py
+│   └── settings.py
+├── promoted/
+│   ├── __init__.py
+│   ├── views.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── tests.py
+│   └── models.py
+├── manage.py
+├── license.txt
+├── .ebignore
+├── templates/
+│   ├── css
+│   ├── html
+│   ├── js
+│   └── admin-login/
+│       ├── admin-index.css
+│       └── admin-index.html
+├── utils/
+│   ├── pagination.py
+│   ├── updp.py
+│   ├── exceptions.py
+│   ├── customserializers.py
+│   ├── customfields.py
+│   └── permissions.py
+├── readme.md
+├── .vscode/
+│   └── settings.json
+├── Procfile
+├── mafia/
+│   ├── __init__.py
+│   ├── views.py
+│   ├── serializers.py
+│   ├── routing.py
+│   ├── urls.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── consumers.py
+│   ├── signals.py
+│   └── models.py
+├── user/
+│   ├── __init__.py
+│   ├── views.py
+│   ├── serializers.py
+│   ├── urls.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── signals.py
+│   └── models.py
+├── requirements.txt
+└── .gitignore
+```
+
 ### Reporting bugs
 
 If you find any bug create an issue in the issues tab, come join the discussion in the discussion tab.
