@@ -1,4 +1,4 @@
-# LonersMafia - [lonersmafia.com](lonersmaifa.com)
+# LonersMafia - [lonersmafia.com](https://lonersmaifa.com)
 
 Speak your mind out on loners mafia.
 
