@@ -281,12 +281,16 @@ class MessageDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
 
         message = Message.objects.filter(id=kwargs['id'])
 
-        is_mod = Moderator.objects.filter(user__in=message.values('user'), mafia__in=message.values('mafia')).exists()
+        sender_is_mod = Moderator.objects.filter(user__in=message.values('user'), mafia__in=message.values('mafia')).exists()
 
         if (not message.exists()):
             return Response({'doesn\'t exist': 'This message doesn\'t exist'}, status=status.HTTP_404_NOT_FOUND)
 
-        if (not is_mod or (message.first().user != request.user and not request.user.is_staff)):
+        is_mod = Moderator.objects.filter(user=request.user, mafia__in=message.values('mafia')).exists()
+        
+        if ((not is_mod and not request.user.is_staff) or 
+            (sender_is_mod and not request.user.is_staff) or 
+            (message.first().user != request.user and not is_mod and not request.user.is_staff)):
             return Response({'forbidden': 'only staff can delete other moderators messages'}, status=status.HTTP_403_FORBIDDEN)
 
         return self.destroy(request, *args, **kwargs)
