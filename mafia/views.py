@@ -232,14 +232,8 @@ class MessageListView(generics.GenericAPIView, mixins.ListModelMixin):
     ordering = ['-datetime']
 
     def get_queryset(self):
-
-        if not self.kwargs.get('mafia') or not self.kwargs['mafia'].isdigit(): 
-            raise ValidationError('invalid input', code=status.HTTP_400_BAD_REQUEST)
-
         
         return Message.objects.filter(mafia=self.kwargs['mafia']).order_by('-datetime')
-
-
 
     def get(self, request, *args, **kwargs):
         

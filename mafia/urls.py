@@ -15,7 +15,7 @@ urlpatterns = [
 
     path('message/create/', views.MessageCreateView.as_view(), name='message-create'),
     path('message/delete/<int:id>/', views.MessageDeleteView.as_view(), name='message-delete'),
-    path('<path:mafia>/messages/', views.MessageListView.as_view(), name='message-list'),
+    path('<int:mafia>/messages/', views.MessageListView.as_view(), name='message-list'),
     
     path('messages/react/', views.MessageReactionCreateView.as_view()),
     path('message/<int:message>/react/<str:reaction>/delete/', views.MessageReactionDeleteView.as_view()),
