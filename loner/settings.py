@@ -44,9 +44,6 @@ if DEBUG:
 else:
     ALLOWED_HOSTS = env('ALLOWED_PROD_HOSTS').replace(' ', '').split(',')
 
-CORS_ALLOWED_ORIGINS = []
-
-CORS_ORIGIN_WHITELIST = []
 
 if DEBUG:
     CORS_ALLOWED_ORIGINS = ['http://localhost:3000', 'http://localhost', 'http://localhost:8000', 
@@ -55,6 +52,11 @@ if DEBUG:
     # CORS_ORIGIN_ALLOW_ALL=True
     CORS_ALLOW_CREDENTIALS = True
     CSRF_TRUSTED_ORIGINS = ['http://localhost:3000', env.get_value('DEV_ALLOWED_CORS')]
+
+else:
+    CORS_ALLOWED_ORIGINS = env('ALLOWED_CORS').replace(' ', '').split(',')
+
+    CORS_ORIGIN_WHITELIST = []
 
 
 SITE_DOMAIN = 'https://lonersmafia.com'
