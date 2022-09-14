@@ -1,12 +1,13 @@
 .env
 __pycache__
 db.sqlite3
-media/
+media/*
 loner0.json
 request-data.json
 http-request.json
 .ebextensions
 .platform
+proddata.json
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml

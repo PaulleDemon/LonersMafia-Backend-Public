@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg width="25" height="25" version="1.1" viewBox="0 0 6.6146 6.6146" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <radialGradient id="radialGradient1319" cx="13.229" cy="13.229" r="10.367" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#9afe5e" offset="0"/>
+   <stop stop-color="#23c278" offset=".97802"/>
+  </radialGradient>
+  <radialGradient id="radialGradient1391" cx="13.017" cy="13.459" r="4.1103" gradientTransform="matrix(1 0 0 1.0242 0 -.3263)" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#8ac5ee" offset="0"/>
+   <stop stop-color="#005597" offset="1"/>
+  </radialGradient>
+ </defs>
+ <g transform="matrix(1.2451 0 0 1.2451 -3.2447 -3.2071)">
+  <g transform="matrix(.24323 0 0 .24323 2.0434 1.9724)">
+   <rect x="2.8625" y="2.8625" width="20.733" height="20.733" ry="2.552" fill="url(#radialGradient1319)" stroke="#150000" stroke-width=".1651"/>
+   <g stroke="#241c1c">
+    <ellipse cx="13.017" cy="13.459" rx="4.0103" ry="4.11" fill="url(#radialGradient1391)" stroke-width=".2"/>
+    <ellipse cx="18.241" cy="8.0974" rx=".91208" ry=".93474" fill="#d7a18a" stroke-width=".1"/>
+    <ellipse cx="5.5373" cy="6.5157" rx=".43987" ry=".4508" fill="#af3f74" stroke-width=".1"/>
+   </g>
+  </g>
+ </g>
+</svg>
