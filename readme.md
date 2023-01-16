@@ -89,8 +89,6 @@ Read the inspiration behind loners mafia: [story behind lonersmafia](https://git
 ----
 ### Thanks
 
-I would also like to thank [peckspace.com](peckspace.com) for its contribution. 
-Make sure to check them out [peckspace.com](peckspace.com)
 
 [Inkspace](https://inkscape.org/) for allowing me to feely create icons and illustrations.
 
